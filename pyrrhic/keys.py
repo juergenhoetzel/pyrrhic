@@ -12,7 +12,9 @@ _POLY1305KEYMASK = b"\xff\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xf
 
 
 class Key(BaseModel):
-    """Class that contain all data that is needed to derive the repository's master encryption and message authentication keys from a user's password.."""
+    """Class that contain all data that is needed to derive the
+    repository's master encryption and message authentication keys
+    from a user's password."""
 
     hostname: str
     username: str

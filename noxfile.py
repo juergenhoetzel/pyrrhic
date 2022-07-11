@@ -18,6 +18,12 @@ DEFAULT_PYTHON: str = "3.10"
 # Global project stuff
 PROJECT_ROOT = Path(__file__).parent.resolve()
 
+SOURCE_FILES = (
+    "noxfile.py",
+    "pyrrhic",
+    "test",
+)
+
 
 @nox.session(python=DEFAULT_PYTHON)
 def dev(session: nox.Session) -> None:
@@ -44,5 +50,7 @@ def test(session: nox.Session) -> None:
     session.install(
         ".",
         "pytest",
+        "flake8",
     )
+    session.run("flake8", *SOURCE_FILES)
     session.run("pytest", "-v", "-v")
