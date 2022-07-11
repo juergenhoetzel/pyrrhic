@@ -56,7 +56,8 @@ def _poly1305_validate(
         raise ValueError("Invalid password")
 
 
-def get_masterkey(key: Key, password: bytes):
+def get_masterkey(path: str, password: bytes):
+    key = load_key(path)
     kdf = Scrypt(key.salt, 64, key.N, key.r, key.p, backend=default_backend)
     derived_key = kdf.derive(password)
     poly_k = derived_key[32:48]
@@ -66,3 +67,18 @@ def get_masterkey(key: Key, password: bytes):
     mac = key.data[-16:]
     _poly1305_validate(nonce, poly_k, poly_r, message, mac)
     return json.loads(_decrypt(derived_key[:32], nonce, message))
+
+
+# FIXME: Use Model for key
+# FIXME: Move to config.py
+def get_config(masterkey: dict, path: str):
+    masterkey = b64decode(masterkey["encrypt"])
+    # k = b64decode(masterkey["mac"]["k"])
+    # r = b64decode(masterkey["mac"]["r"])
+    with open(path, "rb") as f:
+        bs = f.read()
+    nonce = bs[:16]
+    ciphertext = bs[16:-16]
+    # FIXME: Need to validate
+    # mac = bs[-16:]
+    return json.loads(_decrypt(masterkey, nonce, ciphertext))

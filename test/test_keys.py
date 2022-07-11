@@ -12,8 +12,7 @@ def test_load_key():
 
 
 def test_get_masterkey():
-    key = load_key(KEYFILE)
-    masterkey = get_masterkey(key, b"password")
+    masterkey = get_masterkey(KEYFILE, b"password")
     assert type(masterkey) == dict
     assert masterkey == {
         "mac": {"k": "aSbwRFL8rIOOxL4W+mAW1w==", "r": "hQYBDSD/JwpU8XMDIJmAAg=="},
@@ -22,6 +21,5 @@ def test_get_masterkey():
 
 
 def test_get_masterkey_with_invalid_password():
-    key = load_key(KEYFILE)
     with pytest.raises(ValueError):
-        get_masterkey(key, b"password2")
+        get_masterkey(KEYFILE, b"password2")
