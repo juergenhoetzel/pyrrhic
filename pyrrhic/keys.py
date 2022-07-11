@@ -65,5 +65,4 @@ def get_masterkey(key: Key, password: bytes):
     message = key.data[16:-16]
     mac = key.data[-16:]
     _poly1305_validate(nonce, poly_k, poly_r, message, mac)
-
     return json.loads(_decrypt(derived_key[:32], nonce, message))

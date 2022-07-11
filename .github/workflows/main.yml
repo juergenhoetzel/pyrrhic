@@ -12,7 +12,8 @@ jobs:
         uses: actions/setup-python@v3
         # FIXME: Python matrix
       - name: Install required Python dependencies
-        run: pip install nox flit
+        run: pip install nox
+        run: pip install flit
       - name: Run nox
         # Run tox using the version of Python in `PATH`
         run: nox
