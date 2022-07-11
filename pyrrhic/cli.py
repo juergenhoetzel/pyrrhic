@@ -1,5 +1,6 @@
 import typer
 from pprint import pprint
+import pyrrhic
 from pyrrhic.keys import load_key, get_masterkey
 
 app = typer.Typer(add_completion=False)
