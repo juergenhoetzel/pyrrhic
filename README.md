@@ -1,5 +1,7 @@
 # Restic implementation in Python
 
+[![image](https://github.com/juergenhoetzel/pyrrhic/workflows/CI/badge.svg?branch=master)](https://github.com/juergenhoetzel/pyrrhic/actions?workflow=main)
+
 ## Pre-Alpha Relase
 
 Not much here yet.
