@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-pyrrhic = "pyrrhic.cli:app"
+pyrrhic = "pyrrhic.cli.main:app"
 
 [project.optional-dependencies]
 test = [

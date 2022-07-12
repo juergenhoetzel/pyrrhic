@@ -2,7 +2,7 @@ import typer
 import os
 from pprint import pprint
 import pyrrhic
-from pyrrhic.keys import get_masterkey, get_config
+from pyrrhic.crypto.keys import get_masterkey, get_config
 
 app = typer.Typer(add_completion=False)
 

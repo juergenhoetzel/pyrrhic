@@ -1,5 +1,5 @@
 import pytest
-from pyrrhic.keys import load_key, get_masterkey, Key
+from pyrrhic.crypto.keys import load_key, get_masterkey, Key
 
 
 # FIXME: Hardcoded
