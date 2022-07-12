@@ -1,5 +1,5 @@
 """
-Nox automation tasks for pytoil
+Nox automation tasks for pyrrhic
 """
 
 import os
@@ -50,7 +50,8 @@ def test(session: nox.Session) -> None:
     session.install(
         ".",
         "pytest",
+        "pytest-cov",
         "flake8",
     )
     session.run("flake8", *SOURCE_FILES)
-    session.run("pytest", "-v", "-v")
+    session.run("pytest", "-v", "-v", "--cov=pyrrhic")
