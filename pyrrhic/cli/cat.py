@@ -14,6 +14,8 @@ app = typer.Typer(add_completion=False)
 @catch_exception(ValueError, exit_code=1)
 def masterkey():
     """Return masterkey JSON to stdout"""
+    if not state["repository"]:
+        raise ValueError("Please specify repository location")
     keys_dir = os.path.join(state["repository"], "keys")
     masterkey = get_dir_masterkey(keys_dir, state["password"])
     pprint(masterkey)
@@ -23,7 +25,8 @@ def masterkey():
 @catch_exception(ValueError, exit_code=1)
 def config():
     """Return config JSON to stdout"""
-    print(state)
+    if not state["repository"]:
+        raise ValueError("Please specify repository location")
     keys_dir = os.path.join(state["repository"], "keys")
     masterkey = get_dir_masterkey(keys_dir, state["password"])
     pprint(get_config(masterkey, os.path.join(state["repository"], "config")))
