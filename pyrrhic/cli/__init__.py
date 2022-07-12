@@ -1,1 +1,1 @@
-state = {"repository": None}
+state = {"repository": None, "password": None}

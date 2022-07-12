@@ -12,17 +12,18 @@ app = typer.Typer(add_completion=False)
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
-def masterkey(password: str):
+def masterkey():
     """Return masterkey JSON to stdout"""
     keys_dir = os.path.join(state["repository"], "keys")
-    masterkey = get_dir_masterkey(keys_dir, password)
+    masterkey = get_dir_masterkey(keys_dir, state["password"])
     pprint(masterkey)
 
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
-def config(password: str):
+def config():
     """Return config JSON to stdout"""
+    print(state)
     keys_dir = os.path.join(state["repository"], "keys")
-    masterkey = get_dir_masterkey(keys_dir, password)
+    masterkey = get_dir_masterkey(keys_dir, state["password"])
     pprint(get_config(masterkey, os.path.join(state["repository"], "config")))
