@@ -1,7 +1,7 @@
 import typer
 import os
 
-from .util import get_dir_masterkey, catch_exception
+from pyrrhic.cli.util import get_dir_masterkey, catch_exception
 
 from pprint import pprint
 from pyrrhic.cli.main import state
