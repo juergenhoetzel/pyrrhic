@@ -54,4 +54,4 @@ def test(session: nox.Session) -> None:
         "flake8",
     )
     session.run("flake8", *SOURCE_FILES)
-    session.run("pytest", "-v", "-v", "--cov=pyrrhic")
+    session.run("pytest", "-v", "-v", "--cov=pyrrhic", "--cov-branch")
