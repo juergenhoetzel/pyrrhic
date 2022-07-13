@@ -18,3 +18,8 @@ jobs:
       - name: Run nox
         # Run tox using the version of Python in `PATH`
         run: nox
+      - name: Upload coverage reports to Codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN}
