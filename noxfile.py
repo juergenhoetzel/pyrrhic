@@ -55,3 +55,11 @@ def test(session: nox.Session) -> None:
     )
     session.run("flake8", *SOURCE_FILES)
     session.run("pytest", "-v", "-v", "--cov=pyrrhic", "--cov-branch")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def coverage(session: nox.Session):
+    """Upload coverage data."""
+    session.install("coverage[toml]", "codecov")
+    session.run("coverage", "xml", "--fail-under=0")
+    session.run("codecov", *session.posargs)
