@@ -42,7 +42,7 @@ def dev(session: nox.Session) -> None:
     )
 
 
-@nox.session(python=DEFAULT_PYTHON)
+@nox.session(python=["3.8", "3.9", "3.10"])
 def test(session: nox.Session) -> None:
     """
     Runs the test suite.
