@@ -72,13 +72,14 @@ def get_masterkey(path: str, password: bytes):
 # FIXME: Use Model for key
 # FIXME: Move to config.py
 def get_config(masterkey: dict, path: str):
-    masterkey = b64decode(masterkey["encrypt"])
-    # k = b64decode(masterkey["mac"]["k"])
-    # r = b64decode(masterkey["mac"]["r"])
+    key = b64decode(masterkey["encrypt"])
+    k = b64decode(masterkey["mac"]["k"])
+    r = b64decode(masterkey["mac"]["r"])
     with open(path, "rb") as f:
         bs = f.read()
     nonce = bs[:16]
     ciphertext = bs[16:-16]
-    # FIXME: Need to validate
-    # mac = bs[-16:]
-    return json.loads(_decrypt(masterkey, nonce, ciphertext))
+    plain = _decrypt(key, nonce, ciphertext)
+    mac = bs[-16:]
+    _poly1305_validate(nonce, k, r, ciphertext, mac)
+    return json.loads(plain)
