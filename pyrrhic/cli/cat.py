@@ -4,7 +4,7 @@ import os
 from .util import get_dir_masterkey, catch_exception
 
 from pprint import pprint
-from pyrrhic.crypto.keys import get_masterkey, get_config
+from pyrrhic.crypto.keys import get_config
 
 app = typer.Typer(add_completion=False)
 
@@ -14,7 +14,7 @@ app = typer.Typer(add_completion=False)
 def masterkey(repo_path: str, password: str):
     """Return masterkey JSON to stdout"""
     keys_dir = os.path.join(repo_path, "keys")
-    masterkey = get_masterkey(keys_dir, password.encode("utf8"))
+    masterkey = get_dir_masterkey(keys_dir, password)
     pprint(masterkey)
 
 
