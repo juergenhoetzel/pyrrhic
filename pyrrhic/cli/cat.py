@@ -17,8 +17,8 @@ def masterkey():
     if not state["repository"]:
         raise ValueError("Please specify repository location")
     keys_dir = os.path.join(state["repository"], "keys")
-    masterkey = get_dir_masterkey(keys_dir, state["password"])
-    pprint(masterkey)
+    key = get_dir_masterkey(keys_dir, state["password"])
+    pprint(key.restic_json())
 
 
 @app.command()

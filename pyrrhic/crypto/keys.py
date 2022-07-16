@@ -1,7 +1,8 @@
 import json
 from pydantic import BaseModel
+from pydantic import conbytes
 from datetime import datetime
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives import poly1305
@@ -11,7 +12,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, modes, algorithms
 _POLY1305KEYMASK = b"\xff\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f"
 
 
-class Key(BaseModel):
+class WrappedKey(BaseModel):
     """Class that contain all data that is needed to derive the
     repository's master encryption and message authentication keys
     from a user's password."""
@@ -27,16 +28,42 @@ class Key(BaseModel):
     salt: bytes
 
 
-def load_key(key_path: str) -> Key:
+class Mac(BaseModel):
+    """Class that holdes the Poly1305-AES parameters"""
+
+    k: conbytes(min_length=16, max_length=16)
+    r: conbytes(min_length=16, max_length=16)
+
+
+class MasterKey(BaseModel):
+    """Class that holds encryption and message authentication keys for a
+    repository."""
+
+    mac: Mac
+    encryption: conbytes(min_length=32, max_length=32)
+
+    def restic_json(self):
+        """Return restic representation of Masterkey"""
+        return {
+            "mac": {
+                "r": b64encode(self.mac.r).decode(),
+                "k": b64encode(self.mac.k).decode(),
+            },
+            "encrypt": b64encode(self.encryption).decode(),
+        }
+
+
+def load_key(key_path: str) -> WrappedKey:
     with open(key_path, "r") as f:
         j = json.load(f)
         # FIXME: This should by done using pydantic
         j["salt"] = b64decode(j["salt"])
         j["data"] = b64decode(j["data"])
-        return Key(**j)
+        return WrappedKey(**j)
 
 
 def _decrypt(aes_key: bytes, nonce: bytes, ciphertext: bytes):
+    # FIXME: Validate
     cipher = Cipher(algorithms.AES(aes_key), modes.CTR(nonce))
     decryptor = cipher.decryptor()
     return decryptor.update(ciphertext) + decryptor.finalize()
@@ -56,25 +83,38 @@ def _poly1305_validate(
         raise ValueError("Invalid password")
 
 
-def get_masterkey(path: str, password: bytes):
-    key = load_key(path)
-    kdf = Scrypt(key.salt, 64, key.N, key.r, key.p, backend=default_backend)
+def get_masterkey(path: str, password: bytes) -> MasterKey:
+    wrapped_key = load_key(path)
+    kdf = Scrypt(
+        wrapped_key.salt,
+        64,
+        wrapped_key.N,
+        wrapped_key.r,
+        wrapped_key.p,
+        backend=default_backend,
+    )
     derived_key = kdf.derive(password)
     poly_k = derived_key[32:48]
     poly_r = derived_key[48:]
-    nonce = key.data[:16]
-    message = key.data[16:-16]
-    mac = key.data[-16:]
+    nonce = wrapped_key.data[0:16]
+    message = wrapped_key.data[16:-16]
+    mac = wrapped_key.data[-16:]
     _poly1305_validate(nonce, poly_k, poly_r, message, mac)
-    return json.loads(_decrypt(derived_key[:32], nonce, message))
+    j = json.loads(_decrypt(derived_key[:32], nonce, message))
+    encryption = b64decode(j["encrypt"])
+    r = b64decode(j["mac"]["r"])
+    k = b64decode(j["mac"]["k"])
+    return MasterKey(encryption=encryption, mac=Mac(k=k, r=r))
+
+
+# return MasterKey({"encryption": b64decode(j["encrypt"]), "mac": j["r"] + j["k"]})
 
 
 # FIXME: Use Model for key
 # FIXME: Move to config.py
-def get_config(masterkey: dict, path: str):
-    key = b64decode(masterkey["encrypt"])
-    k = b64decode(masterkey["mac"]["k"])
-    r = b64decode(masterkey["mac"]["r"])
+def get_config(masterkey: MasterKey, path: str):
+    key = masterkey.encryption
+    k, r = masterkey.mac.k, masterkey.mac.r
     with open(path, "rb") as f:
         bs = f.read()
     nonce = bs[:16]
