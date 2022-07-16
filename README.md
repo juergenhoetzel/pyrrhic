@@ -27,3 +27,6 @@ Needed a name starting with `py` containing `r` and ending with `ic`:
 grep ^py.*r.*ic$ /usr/share/dict/cracklib-small
 ```
 
+## Limitations
+
+- Supports repository format version 2 only (current restic version).
