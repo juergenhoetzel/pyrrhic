@@ -9,7 +9,11 @@ import pytest
 @pytest.fixture
 def mock_test_repository(monkeypatch):
     """Set the CLI state to test repository."""
-    monkeypatch.setattr(pyrrhic.cli.state, "repository", "restic_test_repository")
+    monkeypatch.setattr(
+        pyrrhic.cli.state,
+        "repository",
+        "restic_test_repositories/restic_test_repository",
+    )
     monkeypatch.setattr(pyrrhic.cli.state, "password", "password")
 
 

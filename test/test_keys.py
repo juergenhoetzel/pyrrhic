@@ -3,7 +3,7 @@ from pyrrhic.crypto.keys import load_key, get_masterkey, MasterKey, WrappedKey, 
 from base64 import b64decode
 
 # FIXME: Hardcoded
-KEYFILE = "restic_test_repository/keys/98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb"
+KEYFILE = "restic_test_repositories/restic_test_repository/keys/98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb"  # noqa: E501
 
 
 def test_load_key():
