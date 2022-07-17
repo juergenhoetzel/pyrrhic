@@ -6,9 +6,9 @@
 
 Not much here yet.
 
-You can just `cat` the masterkey:
+You can just `cat` the masterkey and config:
 ```bash
-pyrrhic masterkey restic_test_repository/keys/98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb 
+pyrrhic --repo restic_test_repositories/restic_test_repository cat masterkey
 
 ```
 
