@@ -1,9 +1,19 @@
 import pytest
-from pyrrhic.crypto.keys import load_key, get_masterkey, MasterKey, WrappedKey, Mac
+from pyrrhic.crypto.keys import (
+    load_key,
+    get_masterkey,
+    get_config,
+    MasterKey,
+    WrappedKey,
+    Mac,
+)
 from base64 import b64decode
 
 # FIXME: Hardcoded
-KEYFILE = "restic_test_repositories/restic_test_repository/keys/98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb"  # noqa: E501
+REPO_BASE = "restic_test_repositories"
+KEY = "98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb"
+KEYFILE = f"{REPO_BASE}/restic_test_repository/keys/{KEY}"  # noqa: E501
+BROKEN_REPO = f"{REPO_BASE}/restic_broken_test_repository"
 
 
 def test_load_key():
@@ -25,3 +35,9 @@ def test_get_masterkey():
 def test_get_masterkey_with_invalid_password():
     with pytest.raises(ValueError):
         get_masterkey(KEYFILE, b"password2")
+
+
+def test_config_with_invalid_mac():
+    masterkey = get_masterkey(KEYFILE, b"password")
+    with pytest.raises(ValueError, match="ciphertext verification failed"):
+        get_config(masterkey, f"{BROKEN_REPO}/config")
