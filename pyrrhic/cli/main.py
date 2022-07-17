@@ -1,8 +1,10 @@
-import typer
 from pathlib import Path
+
 import pyrrhic
-from pyrrhic.cli import state
 import pyrrhic.cli.cat as cat
+from pyrrhic.cli.state import state
+
+import typer
 
 app: typer.Typer = typer.Typer(add_completion=False)
 app.add_typer(cat.app, name="cat")

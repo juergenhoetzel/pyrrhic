@@ -3,8 +3,9 @@ Nox automation tasks for pyrrhic
 """
 
 import os
-import nox
 from pathlib import Path
+
+import nox
 
 # GitHub Actions
 ON_CI = bool(os.getenv("CI"))
@@ -71,3 +72,15 @@ def mypy(session: nox.Session) -> None:
     args = session.posargs or ["pyrrhic", "test"]
     session.install("mypy")
     session.run("mypy", "--ignore-missing-imports", "--show-error-codes", *args)
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def lint(session: nox.Session) -> None:
+    """Lint using flake8."""
+    args = session.posargs or ["pyrrhic", "test"]
+    session.install(
+        "flake8",
+        "flake8-black",
+        "flake8-import-order",
+    )
+    session.run("flake8", *args)

@@ -1,6 +1,8 @@
 import os
-from pyrrhic.crypto.keys import get_masterkey
 from functools import wraps
+
+from pyrrhic.crypto.keys import get_masterkey
+
 import typer
 
 

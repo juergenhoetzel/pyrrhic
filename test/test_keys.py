@@ -1,15 +1,16 @@
-import pytest
-from pyrrhic.crypto.keys import (
-    load_key,
-    get_masterkey,
-    get_config,
-    MasterKey,
-    WrappedKey,
-    Mac,
-)
 from base64 import b64decode
 
-# FIXME: Hardcoded
+from pyrrhic.crypto.keys import (
+    Mac,
+    MasterKey,
+    WrappedKey,
+    get_config,
+    get_masterkey,
+    load_key,
+)
+
+import pytest
+
 REPO_BASE = "restic_test_repositories"
 KEY = "98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb"
 KEYFILE = f"{REPO_BASE}/restic_test_repository/keys/{KEY}"  # noqa: E501

@@ -1,8 +1,8 @@
-# FIXME: To  prevent circular imports
-import pyrrhic.cli.main  # noqa: F401
-import pyrrhic.cli
-from pyrrhic.cli.cat import masterkey, config
 from ast import literal_eval
+
+from pyrrhic.cli.cat import config, masterkey
+from pyrrhic.cli.state import state
+
 import pytest
 
 
@@ -10,11 +10,11 @@ import pytest
 def mock_test_repository(monkeypatch):
     """Set the CLI state to test repository."""
     monkeypatch.setattr(
-        pyrrhic.cli.state,
+        state,
         "repository",
         "restic_test_repositories/restic_test_repository",
     )
-    monkeypatch.setattr(pyrrhic.cli.state, "password", "password")
+    monkeypatch.setattr(state, "password", "password")
 
 
 def test_cat_masterkey(capfd, mock_test_repository):

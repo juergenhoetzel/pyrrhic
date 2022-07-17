@@ -1,11 +1,11 @@
-import typer
 import os
-
-from pyrrhic.cli.util import get_dir_masterkey, catch_exception
-
 from pprint import pprint
-from pyrrhic.cli.main import state
+
+from pyrrhic.cli.state import state
+from pyrrhic.cli.util import catch_exception, get_dir_masterkey
 from pyrrhic.crypto.keys import get_config
+
+import typer
 
 app: typer.Typer = typer.Typer(add_completion=False)
 

@@ -1,12 +1,13 @@
 import json
-from pydantic import BaseModel
-from pydantic import conbytes
-from datetime import datetime
 from base64 import b64decode, b64encode
+from datetime import datetime
+
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives import poly1305
-from cryptography.hazmat.primitives.ciphers import Cipher, modes, algorithms
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+
+from pydantic import BaseModel, conbytes
 
 # mask for key, (cf. http://cr.yp.to/mac/poly1305-20050329.pdf)
 _POLY1305KEYMASK = b"\xff\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f"
