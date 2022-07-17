@@ -5,7 +5,6 @@ import typer
 
 
 def get_dir_masterkey(keys_dir: str, password: str):
-    last_err = None
     for kf in os.listdir(keys_dir):
         try:
             masterkey = get_masterkey(

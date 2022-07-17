@@ -7,17 +7,17 @@ from pprint import pprint
 from pyrrhic.cli.main import state
 from pyrrhic.crypto.keys import get_config
 
-app = typer.Typer(add_completion=False)
+app: typer.Typer = typer.Typer(add_completion=False)
 
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
 def masterkey():
     """Return masterkey JSON to stdout"""
-    if not state["repository"]:
+    if not state.repository:
         raise ValueError("Please specify repository location")
-    keys_dir = os.path.join(state["repository"], "keys")
-    key = get_dir_masterkey(keys_dir, state["password"])
+    keys_dir = os.path.join(state.repository, "keys")
+    key = get_dir_masterkey(keys_dir, state.password)
     pprint(key.restic_json())
 
 
@@ -25,8 +25,8 @@ def masterkey():
 @catch_exception(ValueError, exit_code=1)
 def config():
     """Return config JSON to stdout"""
-    if not state["repository"]:
+    if not state.repository:
         raise ValueError("Please specify repository location")
-    keys_dir = os.path.join(state["repository"], "keys")
-    masterkey = get_dir_masterkey(keys_dir, state["password"])
-    pprint(get_config(masterkey, os.path.join(state["repository"], "config")))
+    keys_dir = os.path.join(state.repository, "keys")
+    masterkey = get_dir_masterkey(keys_dir, state.password)
+    pprint(get_config(masterkey, os.path.join(state.repository, "config")))

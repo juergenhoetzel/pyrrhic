@@ -31,8 +31,8 @@ class WrappedKey(BaseModel):
 class Mac(BaseModel):
     """Class that holdes the Poly1305-AES parameters"""
 
-    k: conbytes(min_length=16, max_length=16)
-    r: conbytes(min_length=16, max_length=16)
+    k: conbytes(min_length=16, max_length=16)  # type: ignore[valid-type]
+    r: conbytes(min_length=16, max_length=16)  # type: ignore[valid-type]
 
 
 class MasterKey(BaseModel):
@@ -40,7 +40,7 @@ class MasterKey(BaseModel):
     repository."""
 
     mac: Mac
-    encryption: conbytes(min_length=32, max_length=32)
+    encryption: conbytes(min_length=32, max_length=32)  # type: ignore[valid-type]
 
     def restic_json(self):
         """Return restic representation of Masterkey"""
@@ -64,7 +64,7 @@ def load_key(key_path: str) -> WrappedKey:
 
 def _poly1305_validate(
     nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes
-) -> None:
+) -> bool:
     r = bytes([(r & m) for r, m in zip(r, _POLY1305KEYMASK)])
     cipher = Cipher(algorithms.AES(k), modes.ECB())
     encryptor = cipher.encryptor()
@@ -75,14 +75,13 @@ def _poly1305_validate(
     return p.finalize() == mac
 
 
-def _decrypt(aes_key: bytes, nonce: bytes, ciphertext: bytes):
-    # FIXME: Validate
+def _decrypt(aes_key: bytes, nonce: bytes, ciphertext: bytes) -> bytes:
     cipher = Cipher(algorithms.AES(aes_key), modes.CTR(nonce))
     decryptor = cipher.decryptor()
     return decryptor.update(ciphertext) + decryptor.finalize()
 
 
-def decrypt_mac(key: MasterKey, restic_blob: bytes):
+def decrypt_mac(key: MasterKey, restic_blob: bytes) -> bytes:
     """Decrypt 'IV || CIPHERTEXT || MAC' bytes, validate mac and
     return plaintext bytes"""
     nonce = restic_blob[:16]

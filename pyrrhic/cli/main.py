@@ -4,7 +4,7 @@ import pyrrhic
 from pyrrhic.cli import state
 import pyrrhic.cli.cat as cat
 
-app = typer.Typer(add_completion=False)
+app: typer.Typer = typer.Typer(add_completion=False)
 app.add_typer(cat.app, name="cat")
 
 
@@ -27,8 +27,8 @@ def global_options(
         envvar="RESTIC_PASSWORD",
     ),
 ):
-    state["repository"] = repo
-    state["password"] = password
+    state.repository = repo
+    state.password = password
 
 
 if __name__ == "__main__":
