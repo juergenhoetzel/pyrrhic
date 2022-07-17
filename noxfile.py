@@ -63,3 +63,11 @@ def coverage(session: nox.Session):
     session.install("coverage[toml]", "codecov")
     session.run("coverage", "xml", "--fail-under=0")
     session.run("codecov", *session.posargs)
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def mypy(session: nox.Session) -> None:
+    """Type-check using mypy."""
+    args = session.posargs or ["pyrrhic", "test"]
+    session.install("mypy")
+    session.run("mypy", "--ignore-missing-imports", "--show-error-codes", *args)
