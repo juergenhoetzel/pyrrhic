@@ -62,13 +62,6 @@ def load_key(key_path: str) -> WrappedKey:
         return WrappedKey(**j)
 
 
-def _decrypt(aes_key: bytes, nonce: bytes, ciphertext: bytes):
-    # FIXME: Validate
-    cipher = Cipher(algorithms.AES(aes_key), modes.CTR(nonce))
-    decryptor = cipher.decryptor()
-    return decryptor.update(ciphertext) + decryptor.finalize()
-
-
 def _poly1305_validate(
     nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes
 ) -> None:
@@ -79,8 +72,25 @@ def _poly1305_validate(
     poly1305_key = r + aes_ciphertext
     p = poly1305.Poly1305(poly1305_key)
     p.update(message)
-    if p.finalize() != mac:
-        raise ValueError("Invalid password")
+    return p.finalize() == mac
+
+
+def _decrypt(aes_key: bytes, nonce: bytes, ciphertext: bytes):
+    # FIXME: Validate
+    cipher = Cipher(algorithms.AES(aes_key), modes.CTR(nonce))
+    decryptor = cipher.decryptor()
+    return decryptor.update(ciphertext) + decryptor.finalize()
+
+
+def decrypt_mac(key: MasterKey, restic_blob: bytes):
+    """Decrypt 'IV || CIPHERTEXT || MAC' bytes, validate mac and
+    return plaintext bytes"""
+    nonce = restic_blob[:16]
+    mac = restic_blob[-16:]
+    ciphertext = restic_blob[16:-16]
+    if not _poly1305_validate(nonce, key.mac.k, key.mac.r, ciphertext, mac):
+        raise ValueError("ciphertext verification failed")
+    return _decrypt(key.encryption, nonce, ciphertext)
 
 
 def get_masterkey(path: str, password: bytes) -> MasterKey:
@@ -99,7 +109,8 @@ def get_masterkey(path: str, password: bytes) -> MasterKey:
     nonce = wrapped_key.data[0:16]
     message = wrapped_key.data[16:-16]
     mac = wrapped_key.data[-16:]
-    _poly1305_validate(nonce, poly_k, poly_r, message, mac)
+    if not _poly1305_validate(nonce, poly_k, poly_r, message, mac):
+        raise ValueError("Invalid Password")
     j = json.loads(_decrypt(derived_key[:32], nonce, message))
     encryption = b64decode(j["encrypt"])
     r = b64decode(j["mac"]["r"])
@@ -107,19 +118,9 @@ def get_masterkey(path: str, password: bytes) -> MasterKey:
     return MasterKey(encryption=encryption, mac=Mac(k=k, r=r))
 
 
-# return MasterKey({"encryption": b64decode(j["encrypt"]), "mac": j["r"] + j["k"]})
-
-
-# FIXME: Use Model for key
 # FIXME: Move to config.py
 def get_config(masterkey: MasterKey, path: str):
-    key = masterkey.encryption
-    k, r = masterkey.mac.k, masterkey.mac.r
     with open(path, "rb") as f:
         bs = f.read()
-    nonce = bs[:16]
-    ciphertext = bs[16:-16]
-    plain = _decrypt(key, nonce, ciphertext)
-    mac = bs[-16:]
-    _poly1305_validate(nonce, k, r, ciphertext, mac)
+    plain = decrypt_mac(masterkey, bs)
     return json.loads(plain)
