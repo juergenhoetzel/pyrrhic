@@ -9,7 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
         # FIXME: Python matrix
       - name: Install required Python dependencies
         run: >
