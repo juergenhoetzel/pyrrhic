@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives import poly1305
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
-from pydantic import BaseModel, conbytes
+from pydantic import BaseModel, conbytes, validator
 
 # mask for key, (cf. http://cr.yp.to/mac/poly1305-20050329.pdf)
 _POLY1305KEYMASK = b"\xff\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f"
@@ -27,6 +27,14 @@ class WrappedKey(BaseModel):
     created: datetime
     data: bytes
     salt: bytes
+
+    @validator("salt")
+    def salt_base64(cls, v):
+        return b64decode(v)
+
+    @validator("data")
+    def data_base64(cls, v):
+        return b64decode(v)
 
 
 class Mac(BaseModel):
@@ -57,9 +65,6 @@ class MasterKey(BaseModel):
 def load_key(key_path: str) -> WrappedKey:
     with open(key_path, "r") as f:
         j = json.load(f)
-        # FIXME: This should by done using pydantic
-        j["salt"] = b64decode(j["salt"])
-        j["data"] = b64decode(j["data"])
         return WrappedKey(**j)
 
 
