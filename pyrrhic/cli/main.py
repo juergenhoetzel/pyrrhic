@@ -18,9 +18,7 @@ def version():
 
 @app.callback()
 def global_options(
-    repo: Path = typer.Option(
-        None, help="repository for subcommands ", envvar="RESTIC_REPOSITORY"
-    ),
+    repo: Path = typer.Option(None, help="repository for subcommands ", envvar="RESTIC_REPOSITORY"),
     password: str = typer.Option(
         None,
         help="repository password",

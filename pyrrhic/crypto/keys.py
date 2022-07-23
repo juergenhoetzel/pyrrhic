@@ -68,9 +68,7 @@ def load_key(key_path: str) -> WrappedKey:
         return WrappedKey(**j)
 
 
-def _poly1305_validate(
-    nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes
-) -> bool:
+def _poly1305_validate(nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes) -> bool:
     r = bytes([(r & m) for r, m in zip(r, _POLY1305KEYMASK)])
     cipher = Cipher(algorithms.AES(k), modes.ECB())
     encryptor = cipher.encryptor()
