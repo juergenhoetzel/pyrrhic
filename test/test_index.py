@@ -1,5 +1,5 @@
 from pyrrhic.crypto.keys import get_masterkey
-from pyrrhic.repo.index import get_index
+from pyrrhic.repo.index import Index, get_index
 
 REPO_BASE = "restic_test_repositories"
 INDEX_ID = "0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2"
@@ -11,7 +11,5 @@ KEY_FILE = f"{REPO_BASE}/restic_test_repository/keys/{KEY_ID}"
 def test_load_index():
     master_key = get_masterkey(KEY_FILE, b"password")
     index = get_index(INDEX_FILE, master_key)
-    assert "packs" in index.keys()
-    for pack in index["packs"]:
-        assert "id" in pack.keys()
-        assert "blobs" in pack.keys()
+    assert type(index) == Index
+    assert len(index.packs)
