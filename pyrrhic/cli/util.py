@@ -6,6 +6,10 @@ from pyrrhic.crypto.keys import MasterKey, get_masterkey
 import typer
 
 
+def get_file_by_prefix(dir: str, prefix: str) -> list[str]:
+    return [file for file in os.listdir(dir) if file == str or file.startswith(prefix)]
+
+
 def get_dir_masterkey(keys_dir: str, password: str) -> MasterKey:
     for kf in os.listdir(keys_dir):
         try:
