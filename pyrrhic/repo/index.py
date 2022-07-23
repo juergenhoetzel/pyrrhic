@@ -22,7 +22,7 @@ class Index(BaseModel):
     packs: List[Pack]
 
 
-def get_index(path: str, key: MasterKey) -> dict[str, dict]:
+def get_index(path: str, key: MasterKey) -> Index:
     with open(path, "rb") as f:
         bs = f.read()
         plain = decrypt_mac(key, bs)
