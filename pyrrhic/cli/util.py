@@ -1,12 +1,12 @@
 import os
 from functools import wraps
 
-from pyrrhic.crypto.keys import get_masterkey
+from pyrrhic.crypto.keys import MasterKey, get_masterkey
 
 import typer
 
 
-def get_dir_masterkey(keys_dir: str, password: str):
+def get_dir_masterkey(keys_dir: str, password: str) -> MasterKey:
     for kf in os.listdir(keys_dir):
         try:
             masterkey = get_masterkey(os.path.join(keys_dir, kf), password.encode("utf8"))
