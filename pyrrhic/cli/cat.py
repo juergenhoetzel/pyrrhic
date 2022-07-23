@@ -39,6 +39,8 @@ def index(index_id: str):
     """Return index JSON to stdout"""
     if not state.repository:
         raise ValueError("Please specify repository location")
+    if not state.password:
+        raise ValueError("Please specify password")
     keys_dir = os.path.join(state.repository, "keys")
     masterkey = get_dir_masterkey(keys_dir, state.password)
     index = get_index(os.path.join(state.repository, "index", index_id), masterkey)
