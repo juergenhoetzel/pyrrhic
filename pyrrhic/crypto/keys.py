@@ -1,3 +1,7 @@
+"""
+This module contains the crypto primitives used by restic.
+"""
+
 import json
 from base64 import b64decode, b64encode
 from datetime import datetime
