@@ -56,4 +56,29 @@ html_theme = "alabaster"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-nitpick_ignore = [("py:pathlib.Path", "type")]
+nitpick_ignore = [("py:class", "type")]
+
+# Readthedocs config
+if os.environ.get("READTHEDOCS") == "True":
+    from pathlib import Path
+
+    PROJECT_ROOT = Path(__file__).parent.parent
+    PACKAGE_ROOT = PROJECT_ROOT / "pyrrhic"
+
+    def run_apidoc(_):
+        from sphinx.ext import apidoc
+
+        apidoc.main(
+            [
+                "--force",
+                "--implicit-namespaces",
+                "--module-first",
+                "--separate",
+                "-o",
+                str(PROJECT_ROOT / "docs" / "reference"),
+                str(PACKAGE_ROOT),
+            ]
+        )
+
+    def setup(app):
+        app.connect("builder-inited", run_apidoc)
