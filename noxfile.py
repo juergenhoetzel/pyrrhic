@@ -84,3 +84,20 @@ def lint(session: nox.Session) -> None:
         "flake8-import-order",
     )
     session.run("flake8", *args)
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def sphinx(session: nox.Session) -> None:
+    """Generate Sphinx documentation from source files."""
+    session.install(".", "sphinx")
+    session.run(
+        "sphinx-apidoc",
+        "--force",
+        "--implicit-namespaces",
+        "--module-first",
+        "--separate",
+        "-o",
+        "docs/reference/",
+        "pyrrhic",
+    )
+    session.run("sphinx-build", "-W", "--keep-going", "-b", "html", "docs/", "docs/_build/")
