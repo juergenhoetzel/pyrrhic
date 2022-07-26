@@ -15,10 +15,9 @@ app: typer.Typer = typer.Typer(add_completion=False)
 @catch_exception(ValueError, exit_code=1)
 def masterkey():
     """Return masterkey JSON to stdout"""
-    if not state.repository:
-        raise ValueError("Please specify repository location")
-    keys_dir = os.path.join(state.repository, "keys")
-    key = get_dir_masterkey(keys_dir, state.password)
+    valid_state = state.get_valid_state()
+    keys_dir = os.path.join(valid_state.repository, "keys")
+    key = get_dir_masterkey(keys_dir, valid_state.password)
     pprint(key.restic_json())
 
 
@@ -26,22 +25,18 @@ def masterkey():
 @catch_exception(ValueError, exit_code=1)
 def config():
     """Return config JSON to stdout"""
-    if not state.repository:
-        raise ValueError("Please specify repository location")
-    keys_dir = os.path.join(state.repository, "keys")
-    masterkey = get_dir_masterkey(keys_dir, state.password)
-    pprint(get_config(masterkey, os.path.join(state.repository, "config")))
+    valid_state = state.get_valid_state()
+    keys_dir = os.path.join(valid_state.repository, "keys")
+    masterkey = get_dir_masterkey(keys_dir, valid_state.password)
+    pprint(get_config(masterkey, os.path.join(valid_state.repository, "config")))
 
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
 def index(index_id: str):
     """Return index JSON to stdout"""
-    if not state.repository:
-        raise ValueError("Please specify repository location")
-    if not state.password:
-        raise ValueError("Please specify password")
-    keys_dir = os.path.join(state.repository, "keys")
-    masterkey = get_dir_masterkey(keys_dir, state.password)
-    index = get_index(os.path.join(state.repository, "index", index_id), masterkey)
+    valid_state = state.get_valid_state()
+    keys_dir = os.path.join(valid_state.repository, "keys")
+    masterkey = get_dir_masterkey(keys_dir, valid_state.password)
+    index = get_index(os.path.join(valid_state.repository, "index", index_id), masterkey)
     print(index.json(indent=2))
