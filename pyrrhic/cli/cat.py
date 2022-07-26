@@ -14,6 +14,7 @@ app: typer.Typer = typer.Typer(add_completion=False)
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
+@catch_exception(FileNotFoundError, exit_code=2)
 def masterkey():
     """Return masterkey JSON to stdout"""
     valid_state = state.get_valid_state()
@@ -24,6 +25,7 @@ def masterkey():
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
+@catch_exception(FileNotFoundError, exit_code=2)
 def config():
     """Return config JSON to stdout"""
     valid_state = state.get_valid_state()
@@ -34,6 +36,7 @@ def config():
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
+@catch_exception(FileNotFoundError, exit_code=2)
 def index(index_id: str):
     """Return index JSON to stdout"""
     valid_state = state.get_valid_state()
@@ -45,6 +48,7 @@ def index(index_id: str):
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
+@catch_exception(FileNotFoundError, exit_code=2)
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
     valid_state = state.get_valid_state()
