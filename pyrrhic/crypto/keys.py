@@ -67,7 +67,7 @@ class MasterKey(BaseModel):
 
 
 def load_key(key_path: str) -> WrappedKey:
-    with open(key_path, "r") as f:
+    with open(key_path) as f:
         j = json.load(f)
         return WrappedKey(**j)
 
