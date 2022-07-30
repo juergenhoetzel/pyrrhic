@@ -1,23 +1,18 @@
 from ast import literal_eval
+from pathlib import Path
 
+import pyrrhic.cli.state
 from pyrrhic.cli.cat import config, index, masterkey, snapshot
-from pyrrhic.cli.state import repository
-
-import pytest
+from pyrrhic.repo.repository import Repository, get_masterkey
 
 
-@pytest.fixture
-def mock_test_repository(monkeypatch):
-    """Set the CLI state to test repository."""
-    monkeypatch.setattr(
-        repository,
-        "repository",
-        "restic_test_repositories/restic_test_repository",
-    )
-    monkeypatch.setattr(repository, "password", "password")
+pyrrhic.cli.state.repository = Repository(
+    Path("restic_test_repositories/restic_test_repository"),
+    get_masterkey("restic_test_repositories/restic_test_repository", "password"),
+)
 
 
-def test_cat_masterkey(capfd, mock_test_repository):
+def test_cat_masterkey(capfd):
     masterkey()
     assert literal_eval(capfd.readouterr().out) == {
         "encrypt": "Te0IPiu0wvEtr2+J59McgTrjCp/ynVxC/mmM9mX/t+E=",
@@ -25,7 +20,7 @@ def test_cat_masterkey(capfd, mock_test_repository):
     }
 
 
-def test_cat_config(capfd, mock_test_repository):
+def test_cat_config(capfd):
     config()
     assert literal_eval(capfd.readouterr().out) == {
         "chunker_polynomial": "3833148ec41f8d",
@@ -34,7 +29,7 @@ def test_cat_config(capfd, mock_test_repository):
     }
 
 
-def test_cat_snapshot(capfd, mock_test_repository):
+def test_cat_snapshot(capfd):
     snapshot("dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c")
     assert literal_eval(capfd.readouterr().out) == {
         "time": "2022-07-19T21:52:28.692251936+02:00",
@@ -47,6 +42,6 @@ def test_cat_snapshot(capfd, mock_test_repository):
     }
 
 
-def test_cat_index(capfd, mock_test_repository):
+def test_cat_index(capfd):
     index("0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2")
     assert "packs" in literal_eval(capfd.readouterr().out)

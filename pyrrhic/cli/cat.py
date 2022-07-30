@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from pyrrhic.cli.state import repository
+import pyrrhic.cli.state
 from pyrrhic.cli.util import catch_exception
 
 
@@ -14,7 +14,8 @@ app: typer.Typer = typer.Typer(add_completion=False)
 @catch_exception(FileNotFoundError, exit_code=2)
 def masterkey():
     """Return masterkey JSON to stdout"""
-    print(repository.get_masterkey().restic_json())
+    state = pyrrhic.cli.state
+    print(state.repository.masterkey.restic_json())
 
 
 @app.command()
@@ -22,7 +23,8 @@ def masterkey():
 @catch_exception(FileNotFoundError, exit_code=2)
 def config():
     """Return config JSON to stdout"""
-    config = repository.get_config()
+    state = pyrrhic.cli.state
+    config = state.repository.get_config()
     pprint(config)
 
 
@@ -31,7 +33,8 @@ def config():
 @catch_exception(FileNotFoundError, exit_code=2)
 def index(index_id: str):
     """Return index JSON to stdout"""
-    index = repository.get_index(index_id)
+    state = pyrrhic.cli.state
+    index = state.repository.get_index(index_id)
     print(index.json(indent=2))
 
 
@@ -40,5 +43,6 @@ def index(index_id: str):
 # @catch_exception(FileNotFoundError, exit_code=2)
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
-    snapshot = repository.get_snapshot(snapshot_id)
+    state = pyrrhic.cli.state
+    snapshot = state.repository.get_snapshot(snapshot_id)
     print(snapshot.json(indent=2))

@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pyrrhic
 import pyrrhic.cli.cat as cat
-from pyrrhic.cli.state import repository
+import pyrrhic.cli.state
+from pyrrhic.repo.repository import Repository, get_masterkey
 
 import typer
 
@@ -27,8 +28,8 @@ def global_options(
         envvar="RESTIC_PASSWORD",
     ),
 ):
-    repository.repository = repo
-    repository.password = password
+    masterkey = get_masterkey(str(repo), password)
+    pyrrhic.cli.state.repository = Repository(repo, masterkey)
 
 
 if __name__ == "__main__":
