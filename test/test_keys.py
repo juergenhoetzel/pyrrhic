@@ -4,10 +4,10 @@ from pyrrhic.crypto.keys import (
     Mac,
     MasterKey,
     WrappedKey,
-    get_config,
     get_masterkey,
     load_key,
 )
+from pyrrhic.repo.repository import Repository
 
 import pytest
 
@@ -39,6 +39,6 @@ def test_get_masterkey_with_invalid_password():
 
 
 def test_config_with_invalid_mac():
-    masterkey = get_masterkey(KEYFILE, b"password")
+    repo = Repository("password", BROKEN_REPO)
     with pytest.raises(ValueError, match="ciphertext verification failed"):
-        get_config(masterkey, f"{BROKEN_REPO}/config")
+        repo.get_config()

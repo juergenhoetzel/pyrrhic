@@ -1,7 +1,7 @@
 from ast import literal_eval
 
 from pyrrhic.cli.cat import config, index, masterkey, snapshot
-from pyrrhic.cli.state import state
+from pyrrhic.cli.state import repository
 
 import pytest
 
@@ -10,11 +10,11 @@ import pytest
 def mock_test_repository(monkeypatch):
     """Set the CLI state to test repository."""
     monkeypatch.setattr(
-        state,
+        repository,
         "repository",
         "restic_test_repositories/restic_test_repository",
     )
-    monkeypatch.setattr(state, "password", "password")
+    monkeypatch.setattr(repository, "password", "password")
 
 
 def test_cat_masterkey(capfd, mock_test_repository):

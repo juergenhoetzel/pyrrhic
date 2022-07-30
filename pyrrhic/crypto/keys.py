@@ -123,11 +123,3 @@ def get_masterkey(path: str, password: bytes) -> MasterKey:
     r = b64decode(j["mac"]["r"])
     k = b64decode(j["mac"]["k"])
     return MasterKey(encryption=encryption, mac=Mac(k=k, r=r))
-
-
-# FIXME: Move to config.py
-def get_config(masterkey: MasterKey, path: str):
-    with open(path, "rb") as f:
-        bs = f.read()
-    plain = decrypt_mac(masterkey, bs)
-    return json.loads(plain)
