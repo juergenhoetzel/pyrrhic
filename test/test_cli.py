@@ -8,7 +8,7 @@ from pyrrhic.repo.repository import Repository, get_masterkey
 
 pyrrhic.cli.state.repository = Repository(
     Path("restic_test_repositories/restic_test_repository"),
-    get_masterkey("restic_test_repositories/restic_test_repository", "password"),
+    get_masterkey(Path("restic_test_repositories/restic_test_repository"), "password"),
 )
 
 

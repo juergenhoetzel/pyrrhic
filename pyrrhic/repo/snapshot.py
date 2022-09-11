@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import List
 
 from pydantic import BaseModel
@@ -16,7 +17,7 @@ class Snapshot(BaseModel):
     gid: int
 
 
-def get_snapshot(path: str, key: MasterKey) -> Snapshot:
+def get_snapshot(path: Path, key: MasterKey) -> Snapshot:
     with open(path, "rb") as f:
         bs = f.read()
         snapshot_json = json.loads(decrypt_mac(key, bs))

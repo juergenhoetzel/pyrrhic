@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import List
 
 from pydantic import BaseModel
@@ -22,7 +23,7 @@ class Index(BaseModel):
     packs: List[Pack]
 
 
-def get_index(path: str, key: MasterKey) -> Index:
+def get_index(path: Path, key: MasterKey) -> Index:
     with open(path, "rb") as f:
         bs = f.read()
         plain = decrypt_mac(key, bs)

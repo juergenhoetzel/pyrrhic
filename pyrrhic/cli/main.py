@@ -28,7 +28,7 @@ def global_options(
         envvar="RESTIC_PASSWORD",
     ),
 ):
-    masterkey = get_masterkey(str(repo), password)
+    masterkey = get_masterkey(repo, password)
     pyrrhic.cli.state.repository = Repository(repo, masterkey)
 
 
