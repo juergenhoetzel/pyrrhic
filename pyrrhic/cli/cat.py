@@ -45,4 +45,4 @@ def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
     state = pyrrhic.cli.state
     snapshot = state.repository.get_snapshot(snapshot_id)
-    print(snapshot.json(indent=2))
+    print(snapshot.json(indent=2, exclude_none=True))

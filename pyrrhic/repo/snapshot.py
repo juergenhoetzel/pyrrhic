@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -13,8 +13,10 @@ class Snapshot(BaseModel):
     paths: List[str]
     hostname: str
     username: str
-    uid: int
-    gid: int
+    uid: Optional[int]  # Undocumented https://restic.readthedocs.io/en/stable/100_references.html#repository-format
+    gid: Optional[int]
+    excludes: Optional[List[str]]
+    tags: Optional[List[str]]
 
 
 def get_snapshot(path: Path, key: MasterKey) -> Snapshot:
