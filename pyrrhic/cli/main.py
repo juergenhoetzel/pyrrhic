@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import pyrrhic
@@ -23,11 +24,18 @@ def global_options(
     password: str = typer.Option(
         None,
         help="repository password",
-        prompt=True,
-        hide_input=True,
         envvar="RESTIC_PASSWORD",
     ),
+    password_file: Path = typer.Option(None, "--password-file", "-p", help="file to read the repository password from", envvar="RESTIC_PASSWORD_FILE"),
 ):
+    if password_file:
+        if password:
+            print("password and password-file are mutually exclusive", file=sys.stderr)
+            raise typer.Exit(code=1)
+        password = Path(password_file).read_text().strip()
+    if not password:
+        password = typer.prompt("repository password", hide_input=True)
+
     masterkey = get_masterkey(repo, password)
     pyrrhic.cli.state.repository = Repository(repo, masterkey)
 
