@@ -20,7 +20,13 @@ class Snapshot(BaseModel):
 
 
 def get_snapshot(path: Path, key: MasterKey) -> Snapshot:
-    with open(path, "rb") as f:
-        bs = f.read()
-        snapshot_json = json.loads(decrypt_mac(key, bs))
-        return Snapshot(**snapshot_json)
+    match list(path.parent.glob(f"{path.name}*")):
+        case []:
+            raise ValueError(f"Invalid Snapshot ID: {path.name}")
+        case [snapshot]:
+            with open(snapshot, "rb") as f:
+                bs = f.read()
+                snapshot_json = json.loads(decrypt_mac(key, bs))
+                return Snapshot(**snapshot_json)
+        case _:
+            raise ValueError("Multiple Snapshots match prefix {path.name}")
