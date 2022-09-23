@@ -7,38 +7,37 @@ from pyrrhic.crypto.keys import MasterKey, decrypt_mac
 
 
 @dataclass(frozen=True)
-class DataBlob:
+class Blob:
+    pack_id: str
     offset: int
     length: int
     hash: bytes
 
 
 @dataclass(frozen=True)
-class TreeBlob:
-    offset: int
-    length: int
-    hash: bytes
+class DataBlob(Blob):
+    pass
 
 
 @dataclass(frozen=True)
-class CompressedDataBlob:
-    offset: int
-    length: int
+class TreeBlob(Blob):
+    pass
+
+
+@dataclass(frozen=True)
+class CompressedDataBlob(Blob):
     length_uncompressed: int
-    hash: bytes
 
 
 @dataclass(frozen=True)
 class CompressedTreeBlob:
-    offset: int
-    length: int
     length_uncompressed: int
-    hash: bytes
 
 
 class Pack:
     def __init__(self, repo_path: Path, key: MasterKey, pack_id: str):
         "Load Pack at path."
+        self.pack_id = pack_id
         path = repo_path / "data" / pack_id[:2] / pack_id
         with open(path, "rb") as f:
             f.seek(-4, os.SEEK_END)
@@ -56,19 +55,19 @@ class Pack:
             match header[0]:
                 case 0:
                     length_encrypted = unpack("<I", header[1:5])[0]
-                    yield DataBlob(offset, length_encrypted, header[5 : 5 + 32])
+                    yield DataBlob(self.pack_id, offset, length_encrypted, header[5 : 5 + 32])
                     header = header[(5 + 32) :]
                 case 1:
                     length_encrypted = unpack("<I", header[1:5])[0]
-                    yield TreeBlob(offset, length_encrypted, header[5 : 5 + 32])
+                    yield TreeBlob(self.pack_id, offset, length_encrypted, header[5 : 5 + 32])
                     header = header[(5 + 32) :]
                 case 2:
                     length_encrypted, length_plaintext = unpack("<I<I", header[1:9])  # FIXME: Wrong in Restic-specification, shoud be length_uncompressed?
-                    yield CompressedDataBlob(offset, length_encrypted, length_plaintext, header[9 : 9 + 32])
+                    yield CompressedDataBlob(self.pack_id, offset, length_encrypted, header[9 : 9 + 32], length_plaintext)
                     header = header[9 + 32 :]
                 case 3:
                     length_encrypted, length_plaintext = unpack("<I<I", header[1:9])
-                    yield CompressedTreeBlob(offset, length_encrypted, length_plaintext, header[9 : 9 + 32])
+                    yield CompressedTreeBlob(self.pack_id, offset, length_encrypted, header[9 : 9 + 32], length_plaintext)
                     header = header[9 + 32 :]
                 case _:
                     raise ValueError(f"Invalid Tag: {header[0]}")
