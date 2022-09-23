@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from pyrrhic.repo.index import Index
 from pyrrhic.repo.repository import Repository, get_masterkey
 
 REPO_BASE = "restic_test_repositories"
@@ -12,6 +11,15 @@ def test_load_index():
         Path(REPO_BASE) / "restic_test_repository",
         get_masterkey(Path(REPO_BASE) / "restic_test_repository", "password"),
     )
-    index = repo.get_index(INDEX_ID)
-    assert type(index) == Index
-    assert len(index.packs)
+    indexes = repo.get_index(INDEX_ID)
+    assert next(indexes, None)
+    assert next(indexes, None) is None
+
+
+def test_load_indexes():
+    repo = Repository(
+        Path(REPO_BASE) / "restic_test_repository",
+        get_masterkey(Path(REPO_BASE) / "restic_test_repository", "password"),
+    )
+    indexes = repo.get_index()
+    assert next(indexes)

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import Generator, List
 
 from pydantic import BaseModel
 
@@ -23,9 +23,9 @@ class Index(BaseModel):
     packs: List[Pack]
 
 
-def get_index(path: Path, key: MasterKey) -> Index:
-    with open(path, "rb") as f:
-        bs = f.read()
+def get_index(key: MasterKey, repo_path: Path, index_prefix: str) -> Generator[Index, None, None]:
+    for index_path in (repo_path / "index").glob(f"{index_prefix}*"):
+        bs = index_path.read_bytes()
         plain = decrypt_mac(key, bs)
-    json_index = json.loads(plain)
-    return Index(**json_index)
+        json_index = json.loads(plain)
+        yield Index(**json_index)

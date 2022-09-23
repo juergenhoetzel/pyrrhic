@@ -23,7 +23,11 @@ def test_load_pack(masterkey):
 
 def test_index_matches_packs(masterkey):
     repo = Repository(Path(REPO_BASE) / "restic_test_repository", masterkey)
-    index = repo.get_index(INDEX_ID)
+    indexes = repo.get_index(INDEX_ID)
+    index = next(indexes, None)
+    assert index
+    assert next(indexes, None) is None
+
     for index_pack in index.packs:
         pack_path = repo.repository / "data" / index_pack.id[:2] / index_pack.id
         p = Pack(pack_path, masterkey)

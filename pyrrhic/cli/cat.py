@@ -34,8 +34,11 @@ def config():
 def index(index_id: str):
     """Return index JSON to stdout"""
     state = pyrrhic.cli.state
-    index = state.repository.get_index(index_id)
-    print(index.json(indent=2))
+    match list(state.repository.get_index(index_id)):
+        case [index]:
+            print(index.json(indent=2))
+        case _:
+            raise ValueError(f"Invalid Index: {index_id}")
 
 
 @app.command()
