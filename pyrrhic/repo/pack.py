@@ -37,8 +37,9 @@ class CompressedTreeBlob:
 
 
 class Pack:
-    def __init__(self, path: Path, key: MasterKey):
+    def __init__(self, repo_path: Path, key: MasterKey, pack_id: str):
         "Load Pack at path."
+        path = repo_path / "data" / pack_id[:2] / pack_id
         with open(path, "rb") as f:
             f.seek(-4, os.SEEK_END)
             buffer = f.read(4)

@@ -16,8 +16,7 @@ def masterkey():
 
 
 def test_load_pack(masterkey):
-    TEST_BLOB = TEST_REPO / "data/46/46771395523ccd6dda16694f0ce775f9508a4c3e4527c385f55d8efafa36807f"
-    p = Pack(TEST_BLOB, masterkey)
+    p = Pack(TEST_REPO, masterkey, "46771395523ccd6dda16694f0ce775f9508a4c3e4527c385f55d8efafa36807f")
     assert p
 
 
@@ -29,8 +28,7 @@ def test_index_matches_packs(masterkey):
     assert next(indexes, None) is None
 
     for index_pack in index.packs:
-        pack_path = repo.repository / "data" / index_pack.id[:2] / index_pack.id
-        p = Pack(pack_path, masterkey)
+        p = Pack(repo.repository, masterkey, index_pack.id)
         for index_blob in index_pack.blobs:
             print("Checking ", index_blob.id)
             pack_blobs = p.get_blob_index()
