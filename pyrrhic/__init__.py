@@ -1,3 +1,3 @@
 """Restic implementation in Python"""
-
-__version__ = "0.0.2"
+# Ensure sync with git tags
+__version__ = "0.0.5"
