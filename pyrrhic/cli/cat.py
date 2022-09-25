@@ -57,9 +57,12 @@ def snapshot(snapshot_id: str):
 @app.command()
 @catch_exception(ValueError, exit_code=1)
 @catch_exception(FileNotFoundError, exit_code=2)
-def pack(pack_id: str):
+def pack(pack_id: str, header: bool = typer.Option(False, "--header", help="Output parsed pack header")):
     """Return pack to stdout"""
     state = pyrrhic.cli.state
     pack = state.repository.get_pack(pack_id)
-    with os.fdopen(sys.stdout.fileno(), "wb", closefd=False) as stdout, open(pack.path, "rb") as pack_fd:
-        shutil.copyfileobj(pack_fd, stdout)
+    if header:
+        pprint(list(pack.get_blob_index()))
+    else:
+        with os.fdopen(sys.stdout.fileno(), "wb", closefd=False) as stdout, open(pack.path, "rb") as pack_fd:
+            shutil.copyfileobj(pack_fd, stdout)

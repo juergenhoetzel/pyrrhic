@@ -4,9 +4,7 @@
 [![image](https://codecov.io/gh/juergenhoetzel/pyrrhic/branch/master/graph/badge.svg)](https://codecov.io/gh/juergenhoetzel/pyrrhic)
 ## Pre-Alpha Relase
 
-Not much here yet.
-
-You can just `cat` the masterkey and config:
+All cat commands implemented.
 ```bash
 pyrrhic --repo restic_test_repositories/restic_test_repository cat masterkey
 
@@ -16,8 +14,10 @@ pyrrhic --repo restic_test_repositories/restic_test_repository cat masterkey
 {'encrypt': 'Te0IPiu0wvEtr2+J59McgTrjCp/ynVxC/mmM9mX/t+E=',
  'mac': {'k': 'aSbwRFL8rIOOxL4W+mAW1w==', 'r': 'hQYBDSD/JwpU8XMDIJmAAg=='}}
 ```
+## Additional features missing in golang restic implementation
 
-Don't use this in production.
+- pretty-print all objects
+- `pyrrhic cat pack SNAPSHOT_ID --header` prints parsed header
 
 ## Why is it called pyrrhic
 
