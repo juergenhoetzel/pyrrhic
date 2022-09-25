@@ -1,3 +1,6 @@
+import os
+import shutil
+import sys
 from pprint import pprint
 
 import pyrrhic.cli.state
@@ -43,9 +46,20 @@ def index(index_id: str):
 
 @app.command()
 @catch_exception(ValueError, exit_code=1)
-# @catch_exception(FileNotFoundError, exit_code=2)
+@catch_exception(FileNotFoundError, exit_code=2)
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
     state = pyrrhic.cli.state
     snapshot = state.repository.get_snapshot(snapshot_id)
     print(snapshot.json(indent=2, exclude_none=True))
+
+
+@app.command()
+@catch_exception(ValueError, exit_code=1)
+@catch_exception(FileNotFoundError, exit_code=2)
+def pack(pack_id: str):
+    """Return pack to stdout"""
+    state = pyrrhic.cli.state
+    pack = state.repository.get_pack(pack_id)
+    with os.fdopen(sys.stdout.fileno(), "wb", closefd=False) as stdout, open(pack.path, "rb") as pack_fd:
+        shutil.copyfileobj(pack_fd, stdout)

@@ -38,12 +38,11 @@ class Pack:
     def __init__(self, repo_path: Path, key: MasterKey, pack_id: str):
         "Load Pack at path."
         self.pack_id = pack_id
-        path = repo_path / "data" / pack_id[:2] / pack_id
-        with open(path, "rb") as f:
+        self.path = repo_path / "data" / pack_id[:2] / pack_id
+        with open(self.path, "rb") as f:
             f.seek(-4, os.SEEK_END)
             buffer = f.read(4)
             header_length = unpack("<I", buffer)[0]
-            print(header_length)
             f.seek(-4 - header_length, os.SEEK_END)
             buffer = f.read(header_length)
             self.header = decrypt_mac(key, buffer)

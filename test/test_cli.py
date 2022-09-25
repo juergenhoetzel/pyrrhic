@@ -1,8 +1,9 @@
 from ast import literal_eval
+import hashlib
 from pathlib import Path
 
 import pyrrhic.cli.state
-from pyrrhic.cli.cat import config, index, masterkey, snapshot
+from pyrrhic.cli.cat import config, index, masterkey, snapshot, pack
 from pyrrhic.repo.repository import Repository, get_masterkey
 
 
@@ -45,3 +46,9 @@ def test_cat_snapshot(capfd):
 def test_cat_index(capfd):
     index("0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2")
     assert "packs" in literal_eval(capfd.readouterr().out)
+
+
+def test_cat_pack(capfdbinary):
+    sha = "4b24375f07a164e995d06303bfc26f79f94127e4e5c6e1c476495bbee0af7ccc"
+    pack(sha)
+    assert hashlib.sha256(capfdbinary.readouterr().out).hexdigest() == sha

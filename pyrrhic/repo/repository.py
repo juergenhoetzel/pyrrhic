@@ -8,7 +8,7 @@ from typing import Generator
 
 
 from pyrrhic.crypto import keys
-from pyrrhic.repo import index, snapshot
+from pyrrhic.repo import index, pack, snapshot
 
 
 @dataclass(frozen=True)
@@ -29,6 +29,9 @@ class Repository:
             bs = f.read()
             plain = keys.decrypt_mac(self.masterkey, bs)
             return json.loads(plain)
+
+    def get_pack(self, pack_id: str) -> pack.Pack:
+        return pack.Pack(self.repository, self.masterkey, pack_id)
 
 
 def get_masterkey(repository: Path, password: str) -> keys.MasterKey:
