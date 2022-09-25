@@ -50,5 +50,15 @@ def test_cat_index(capfd):
 
 def test_cat_pack(capfdbinary):
     sha = "4b24375f07a164e995d06303bfc26f79f94127e4e5c6e1c476495bbee0af7ccc"
-    pack(sha)
+    pack(sha, False)
     assert hashlib.sha256(capfdbinary.readouterr().out).hexdigest() == sha
+
+
+def test_cat_pack_header(capfd):
+    sha = "4b24375f07a164e995d06303bfc26f79f94127e4e5c6e1c476495bbee0af7ccc"
+    pack(sha, True)
+    assert literal_eval(capfd.readouterr().out) == [
+        {"id": "82deec86c5611cb5ae02b967e49d7aeaca50a732432bd1a5923787bd5d0fbf80", "length": 1643, "offset": 0},
+        {"id": "e20d6400fbd4e602c79c8bab98a88726865b168838cc8107d560da10f19b2ff8", "length": 1467, "offset": 1643},
+        {"id": "a5dbcc77f63f5dd4f4c67c988aba4a19817aaa9d6c34a6021236a5d40ce653e1", "length": 413, "offset": 3110},
+    ]
