@@ -1,9 +1,9 @@
-from ast import literal_eval
 import hashlib
+from ast import literal_eval
 from pathlib import Path
 
 import pyrrhic.cli.state
-from pyrrhic.cli.cat import config, index, masterkey, snapshot, pack
+from pyrrhic.cli.cat import config, index, masterkey, pack, snapshot
 from pyrrhic.repo.repository import Repository, get_masterkey
 
 
