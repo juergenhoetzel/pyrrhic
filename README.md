@@ -2,6 +2,15 @@
 
 [![image](https://github.com/juergenhoetzel/pyrrhic/workflows/main/badge.svg?branch=master)](https://github.com/juergenhoetzel/pyrrhic/actions?workflow=main)
 [![image](https://codecov.io/gh/juergenhoetzel/pyrrhic/branch/master/graph/badge.svg)](https://codecov.io/gh/juergenhoetzel/pyrrhic)
+
+## Installation
+
+### From pip
+
+```bash
+pipx install pyrrhic-restic
+```
+
 ## Pre-Alpha Relase
 
 All cat commands implemented.
