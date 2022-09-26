@@ -50,8 +50,11 @@ def index(index_id: str):
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
     state = pyrrhic.cli.state
-    snapshot = state.repository.get_snapshot(snapshot_id)
-    print(snapshot.json(indent=2, exclude_none=True))
+    snapshots = state.repository.get_snapshot(snapshot_id)
+    if (snapshot := next(snapshots, None)) and next(snapshots, None) is None:
+        print(snapshot.json(indent=2, exclude_none=True))
+    else:
+        raise ValueError(f"Invalid Index: {snapshot_id}")
 
 
 @app.command()

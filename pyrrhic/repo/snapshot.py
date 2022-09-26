@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 from pydantic import BaseModel
 
@@ -19,14 +19,7 @@ class Snapshot(BaseModel):
     tags: Optional[List[str]]
 
 
-def get_snapshot(path: Path, key: MasterKey) -> Snapshot:
-    match list(path.parent.glob(f"{path.name}*")):
-        case []:
-            raise ValueError(f"Invalid Snapshot ID: {path.name}")
-        case [snapshot]:
-            with open(snapshot, "rb") as f:
-                bs = f.read()
-                snapshot_json = json.loads(decrypt_mac(key, bs))
-                return Snapshot(**snapshot_json)
-        case _:
-            raise ValueError("Multiple Snapshots match prefix {path.name}")
+def get_snapshot(key: MasterKey, repo_path: Path, snapshot_prefix: str) -> Generator[Snapshot, None, None]:
+    for snapshot_path in (repo_path / "snapshots").glob(f"{snapshot_prefix}*"):
+        snapshot_json = json.loads(decrypt_mac(key, snapshot_path.read_bytes()))
+        yield Snapshot(**snapshot_json)

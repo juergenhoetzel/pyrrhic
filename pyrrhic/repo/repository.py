@@ -21,8 +21,8 @@ class Repository:
     def get_index(self, index_prefix: str = "") -> Generator[index.Index, None, None]:
         return index.get_index(self.masterkey, self.repository, index_prefix)
 
-    def get_snapshot(self, snapshot_id: str) -> snapshot.Snapshot:
-        return snapshot.get_snapshot(self.repository / "snapshots" / snapshot_id, self.masterkey)
+    def get_snapshot(self, snapshot_prefix: str = "") -> Generator[snapshot.Snapshot, None, None]:
+        return snapshot.get_snapshot(self.masterkey, self.repository, snapshot_prefix)
 
     def get_config(self):
         with open(self.repository / "config", "rb") as f:
