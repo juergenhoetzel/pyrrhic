@@ -1,4 +1,6 @@
 import json
+import re
+from datetime import datetime
 from pathlib import Path
 from typing import Generator, List, Optional
 
@@ -17,6 +19,13 @@ class Snapshot(BaseModel):
     gid: Optional[int]
     excludes: Optional[List[str]]
     tags: Optional[List[str]]
+
+    def __lt__(self, other):
+        # Doesn't support more than 6 microsecond digits# Doesn't support more than 6 microsecond digits
+        r = re.compile(r"(\.[0-9]{6})[0-9]*\+")
+        dt = datetime.fromisoformat(r.sub(r"\1+", self.time))
+        dt_other = datetime.fromisoformat(r.sub(r"\1+", other.time))
+        return dt < dt_other
 
 
 def get_snapshot(key: MasterKey, repo_path: Path, snapshot_prefix: str) -> Generator[Snapshot, None, None]:
