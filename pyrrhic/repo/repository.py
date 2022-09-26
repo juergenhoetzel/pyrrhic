@@ -24,11 +24,10 @@ class Repository:
     def get_snapshot(self, snapshot_prefix: str = "") -> Generator[snapshot.Snapshot, None, None]:
         return snapshot.get_snapshot(self.masterkey, self.repository, snapshot_prefix)
 
-    def get_config(self):
-        with open(self.repository / "config", "rb") as f:
-            bs = f.read()
-            plain = keys.decrypt_mac(self.masterkey, bs)
-            return json.loads(plain)
+    def get_config(self) -> dict:
+        ct = Path(self.repository / "config").read_bytes()
+        pt = keys.decrypt_mac(self.masterkey, ct)
+        return json.loads(pt)
 
     def get_pack(self, pack_id: str) -> pack.Pack:
         return pack.Pack(self.repository, self.masterkey, pack_id)
