@@ -50,7 +50,10 @@ def index(index_id: str):
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
     state = pyrrhic.cli.state
-    snapshots = state.repository.get_snapshot(snapshot_id)
+    if snapshot_id == "latest":
+        snapshots = iter(sorted(pyrrhic.cli.state.repository.get_snapshot(), reverse=True)[:1])
+    else:
+        snapshots = state.repository.get_snapshot(snapshot_id)
     if (snapshot := next(snapshots, None)) and next(snapshots, None) is None:
         print(snapshot.json(indent=2, exclude_none=True))
     else:
