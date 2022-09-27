@@ -33,7 +33,8 @@ def test_cat_config(capfd):
 def test_cat_snapshot(capfd):
     snapshot("dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c")
     assert literal_eval(capfd.readouterr().out) == {
-        "time": "2022-07-19T21:52:28.692251936+02:00",
+        "id": "dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c",
+        "time": "2022-07-19T21:52:28.692251+02:00",
         "tree": "a5dbcc77f63f5dd4f4c67c988aba4a19817aaa9d6c34a6021236a5d40ce653e1",
         "paths": ["/home/juergen/shared/python/pyrrhic/test"],
         "hostname": "shaun",
