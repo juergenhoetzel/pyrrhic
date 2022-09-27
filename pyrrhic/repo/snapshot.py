@@ -10,6 +10,7 @@ from pyrrhic.crypto.keys import MasterKey, decrypt_mac
 
 
 class Snapshot(BaseModel):
+    id: str
     time: str
     tree: str
     paths: List[str]
@@ -31,4 +32,4 @@ class Snapshot(BaseModel):
 def get_snapshot(key: MasterKey, repo_path: Path, snapshot_prefix: str) -> Generator[Snapshot, None, None]:
     for snapshot_path in (repo_path / "snapshots").glob(f"{snapshot_prefix}*"):
         snapshot_json = json.loads(decrypt_mac(key, snapshot_path.read_bytes()))
-        yield Snapshot(**snapshot_json)
+        yield Snapshot(id=snapshot_path.name, **snapshot_json)
