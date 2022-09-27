@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pyrrhic.cli.state
 from pyrrhic.cli.cat import config, index, masterkey, pack, snapshot
+from pyrrhic.cli.snapshots import snapshots
 from pyrrhic.repo.repository import Repository, get_masterkey
 
 
@@ -63,3 +64,9 @@ def test_cat_pack_header(capfd):
         {"id": "e20d6400fbd4e602c79c8bab98a88726865b168838cc8107d560da10f19b2ff8", "length": 1467, "offset": 1643},
         {"id": "a5dbcc77f63f5dd4f4c67c988aba4a19817aaa9d6c34a6021236a5d40ce653e1", "length": 413, "offset": 3110},
     ]
+
+
+def test_snapshots(capfd):
+    snapshots()
+    output = capfd.readouterr().out
+    assert output.startswith("ID")
