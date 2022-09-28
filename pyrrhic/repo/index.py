@@ -14,13 +14,13 @@ class Blob(BaseModel):
     length: int
 
 
-class Pack(BaseModel):
+class PackRef(BaseModel):
     id: str
     blobs: List[Blob]
 
 
 class Index(BaseModel):
-    packs: List[Pack]
+    packs: List[PackRef]
 
 
 def get_index(key: MasterKey, repo_path: Path, index_prefix: str) -> Generator[Index, None, None]:
