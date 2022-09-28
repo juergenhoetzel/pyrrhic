@@ -13,7 +13,7 @@ pipx install pyrrhic-restic
 
 ## Pre-Alpha Relase
 
-All cat commands implemented.
+All commands are compatible with `restic` implementation:
 ```bash
 pyrrhic --repo restic_test_repositories/restic_test_repository cat masterkey
 
@@ -23,6 +23,22 @@ pyrrhic --repo restic_test_repositories/restic_test_repository cat masterkey
 {'encrypt': 'Te0IPiu0wvEtr2+J59McgTrjCp/ynVxC/mmM9mX/t+E=',
  'mac': {'k': 'aSbwRFL8rIOOxL4W+mAW1w==', 'r': 'hQYBDSD/JwpU8XMDIJmAAg=='}}
 ```
+
+```bash
+pyrrhic -r restic_test_repositories/restic_test_repository -p <(echo password) ls latest
+```
+
+```
+/usr
+/usr/share
+/usr/share/cracklib
+/usr/share/cracklib/cracklib-small
+/usr/share/cracklib/cracklib.magic
+/usr/share/cracklib/pw_dict.hwm
+/usr/share/cracklib/pw_dict.pwd
+/usr/share/cracklib/pw_dict.pwi
+```
+
 ## Additional features missing in golang restic implementation
 
 - pretty-print all objects

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pyrrhic
 import pyrrhic.cli.cat as cat
+import pyrrhic.cli.ls as ls
 import pyrrhic.cli.snapshots as snapshots
 import pyrrhic.cli.state
 from pyrrhic.repo.repository import Repository, get_masterkey
@@ -10,8 +11,9 @@ from pyrrhic.repo.repository import Repository, get_masterkey
 import typer
 
 app: typer.Typer = typer.Typer(add_completion=False)
-app.add_typer(cat.app, name="cat")
+app.add_typer(cat.app, name="cat", help="🐈 Print internal objects to stdout")
 app.command()(snapshots.snapshots)
+app.command()(ls.ls)
 
 
 @app.command()
