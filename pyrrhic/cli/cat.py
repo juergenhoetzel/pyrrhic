@@ -2,11 +2,11 @@ import operator
 import os
 import shutil
 import sys
-from pprint import pprint
 
 import pyrrhic.cli.state
 from pyrrhic.cli.util import catch_exception
 
+from rich import print
 
 import typer
 
@@ -29,7 +29,7 @@ def config():
     """Return config JSON to stdout"""
     state = pyrrhic.cli.state
     config = state.repository.get_config()
-    pprint(config)
+    print(config)
 
 
 @app.command()
@@ -69,7 +69,7 @@ def pack(pack_id: str, header: bool = typer.Option(False, "--header", help="Outp
     state = pyrrhic.cli.state
     pack = state.repository.get_pack(pack_id)
     if header:
-        pprint(list(pack.get_blob_index()))
+        print(list(pack.get_blob_index()))
     else:
         with os.fdopen(sys.stdout.fileno(), "wb", closefd=False) as stdout, open(pack.path, "rb") as pack_fd:
             shutil.copyfileobj(pack_fd, stdout)
