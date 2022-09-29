@@ -18,9 +18,11 @@ class Node(BaseModel):
     ctime: str
     uid: int
     gid: int
+    size: int = 0
     user: str
     inode: int
     content: List[str] | None
+    linktarget: str | None
     subtree: str | None
 
 
