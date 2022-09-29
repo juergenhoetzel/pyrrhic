@@ -12,7 +12,7 @@ dynamic = ["version", "description"]
 requires-python = ">=3.7"
 dependencies = [
 	     "cryptography >= 37.0.4",
-	     "typer >= 0.3.2",
+	     "typer[all] >= 0.3.2",
 	     "pydantic >= 1.9"
 ]
 
