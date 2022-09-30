@@ -39,8 +39,8 @@ def index(index_id: str):
     """Return index JSON to stdout"""
     state = pyrrhic.cli.state
     indexes = state.repository.get_index(index_id)
-    if (index := next(indexes, None)) and next(indexes, None) is None:
-        print(index.json(indent=2))
+    if len(indexes) == 1:
+        print(indexes[0].json(indent=2))
     else:
         raise ValueError(f"Invalid Index: {index_id}")
 

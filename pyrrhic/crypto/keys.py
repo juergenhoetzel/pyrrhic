@@ -65,6 +65,9 @@ class MasterKey(BaseModel):
             "encrypt": b64encode(self.encryption).decode(),
         }
 
+    def __hash__(self):
+        return hash(self.encryption + self.mac.k + self.mac.r)
+
 
 def load_key(key_path: str) -> WrappedKey:
     with open(key_path) as f:

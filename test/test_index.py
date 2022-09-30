@@ -12,8 +12,7 @@ def test_load_index():
         get_masterkey(Path(REPO_BASE) / "restic_test_repository", "password"),
     )
     indexes = repo.get_index(INDEX_ID)
-    assert next(indexes, None)
-    assert next(indexes, None) is None
+    assert len(indexes) == 1
 
 
 def test_load_indexes():
@@ -22,4 +21,4 @@ def test_load_indexes():
         get_masterkey(Path(REPO_BASE) / "restic_test_repository", "password"),
     )
     indexes = repo.get_index()
-    assert next(indexes)
+    assert len(indexes) > 1

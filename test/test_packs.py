@@ -23,11 +23,9 @@ def test_load_pack(masterkey):
 def test_index_matches_packs(masterkey):
     repo = Repository(Path(REPO_BASE) / "restic_test_repository", masterkey)
     indexes = repo.get_index(INDEX_ID)
-    index = next(indexes, None)
-    assert index
-    assert next(indexes, None) is None
+    assert len(indexes) == 1
 
-    for index_pack in index.packs:
+    for index_pack in indexes[0].packs:
         p = Pack(repo.repository, masterkey, index_pack.id)
         for index_blob in index_pack.blobs:
             print("Checking ", index_blob.id)

@@ -4,7 +4,7 @@ This module contains the repository abstractions used by pyrrhic.
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generator
+from typing import Generator, List
 
 
 from pyrrhic.crypto import keys
@@ -18,7 +18,7 @@ class Repository:
     repository: Path
     masterkey: keys.MasterKey
 
-    def get_index(self, index_prefix: str = "") -> Generator[index.Index, None, None]:
+    def get_index(self, index_prefix: str = "") -> List[index.Index]:
         return index.get_index(self.masterkey, self.repository, index_prefix)
 
     def get_snapshot(self, snapshot_prefix: str = "") -> Generator[snapshot.Snapshot, None, None]:
