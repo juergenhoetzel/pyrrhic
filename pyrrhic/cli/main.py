@@ -3,9 +3,6 @@ import sys
 from enum import Enum
 from pathlib import Path
 
-import typer
-from rich.logging import RichHandler
-
 import pyrrhic
 import pyrrhic.cli.cat as cat
 import pyrrhic.cli.snapshots as snapshots
@@ -13,6 +10,10 @@ import pyrrhic.cli.state
 from pyrrhic.cli.ls import ls
 from pyrrhic.cli.restore import restore
 from pyrrhic.repo.repository import Repository, get_masterkey
+
+from rich.logging import RichHandler
+
+import typer
 
 app: typer.Typer = typer.Typer(add_completion=False)
 app.add_typer(cat.app, name="cat", help="🐈 Print internal objects to stdout")

@@ -30,11 +30,11 @@ class Tree(BaseModel):
     nodes: List[Node]
 
 
-def get_tree(repo: Repository, tree: str):
-    for index in repo.get_index():  # FIXME: caching
+def get_node_blob(repo: Repository, blob_id: str) -> bytes:
+    for index in repo.get_index():
         for packref in index.packs:
             for blob in packref.blobs:
-                if blob.id == tree:
+                if blob.id == blob_id:
                     pack = Pack(repo.repository, repo.masterkey, packref.id)
                     with open(repo.repository / "data" / pack.pack_id[:2] / pack.pack_id, "rb") as f:
                         f.seek(blob.offset)
@@ -42,4 +42,10 @@ def get_tree(repo: Repository, tree: str):
                         plaintext = decrypt_mac(repo.masterkey, buffer)
                         if hashlib.sha256(plaintext).hexdigest() != blob.id:
                             raise ValueError(f"Invalid hash for blob {blob.id}")
-                        return Tree(**json.loads(plaintext))
+                        return plaintext
+    raise ValueError(f"Can't find blob id {blob_id}")
+
+
+def get_tree(repo: Repository, tree_id: str) -> Tree:
+    plaintext_blob = get_node_blob(repo, tree_id)
+    return Tree(**json.loads(plaintext_blob))
