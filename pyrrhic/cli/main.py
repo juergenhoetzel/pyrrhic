@@ -1,19 +1,34 @@
+import logging
 import sys
+from enum import Enum
 from pathlib import Path
+
+import typer
+from rich.logging import RichHandler
 
 import pyrrhic
 import pyrrhic.cli.cat as cat
-import pyrrhic.cli.ls as ls
 import pyrrhic.cli.snapshots as snapshots
 import pyrrhic.cli.state
+from pyrrhic.cli.ls import ls
+from pyrrhic.cli.restore import restore
 from pyrrhic.repo.repository import Repository, get_masterkey
-
-import typer
 
 app: typer.Typer = typer.Typer(add_completion=False)
 app.add_typer(cat.app, name="cat", help="🐈 Print internal objects to stdout")
 app.command()(snapshots.snapshots)
-app.command()(ls.ls)
+app.command()(ls)
+app.command()(restore)
+
+
+class LogLevel(str, Enum):
+    debug = "DEBUG"
+    info = "INFO"
+    warn = "WARN"
+    error = "ERROR"
+
+    def __str__(self):
+        return self.value
 
 
 @app.command()
@@ -24,6 +39,7 @@ def version():
 
 @app.callback()
 def global_options(
+    loglevel: LogLevel = typer.Option(LogLevel.error, case_sensitive=False),
     repo: Path = typer.Option(None, "--repo", "-r", help="repository for subcommands ", envvar="RESTIC_REPOSITORY"),
     password: str = typer.Option(
         None,
@@ -32,6 +48,7 @@ def global_options(
     ),
     password_file: Path = typer.Option(None, "--password-file", "-p", help="file to read the repository password from", envvar="RESTIC_PASSWORD_FILE"),
 ):
+    logging.basicConfig(level=str(loglevel), format="%(name)s: %(message)s", datefmt="[%X]", handlers=[RichHandler()])
     if password_file:
         if password:
             print("password and password-file are mutually exclusive", file=sys.stderr)
