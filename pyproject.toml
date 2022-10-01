@@ -39,3 +39,6 @@ testpaths = [
 
 [tool.black]
 line-length = 160
+
+[tool.isort]
+profile = "black"
