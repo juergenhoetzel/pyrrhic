@@ -9,6 +9,7 @@ import pyrrhic.cli.snapshots as snapshots
 import pyrrhic.cli.state
 from pyrrhic.cli.ls import ls
 from pyrrhic.cli.restore import restore
+from pyrrhic.cli.util import catch_exception
 from pyrrhic.repo.repository import Repository, get_masterkey
 
 from rich.logging import RichHandler
@@ -39,6 +40,8 @@ def version():
 
 
 @app.callback()
+@catch_exception(OSError, exit_code=2)
+@catch_exception(ValueError, exit_code=1)
 def global_options(
     loglevel: LogLevel = typer.Option(LogLevel.error, case_sensitive=False),
     repo: Path = typer.Option(None, "--repo", "-r", help="repository for subcommands ", envvar="RESTIC_REPOSITORY"),
