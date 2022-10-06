@@ -28,7 +28,6 @@ def test_index_matches_packs(masterkey):
     for index_pack in index.index:
         p = Pack(repo.repository, masterkey, index_pack.id)
         for index_blob in index_pack.blobs:
-            print("Checking ", index_blob.id)
             pack_blobs = p.get_blob_index()
             assert (matching_blob := next((blob for blob in pack_blobs if blob["id"] == index_blob.id)))
             assert matching_blob["offset"] == index_blob.offset
