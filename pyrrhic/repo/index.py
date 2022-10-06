@@ -44,9 +44,6 @@ class Index:
         self.index = _get_index(key, repo_path, index_prefix, glob)
 
     def get_packref(self, blob_id) -> PackRef:
-        for pack in self.index:
-            for blob in pack.blobs:
-                if blob.id == blob_id:
-                    return PackRef(id=pack.id, blob=blob)
-
+        if packref := next((PackRef(id=pack.id, blob=blob) for pack in self.index for blob in pack.blobs if blob.id == blob_id), None):
+            return packref
         raise ValueError(f"Can't find blob id {blob_id}")
