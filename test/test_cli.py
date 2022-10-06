@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pyrrhic.cli.state
 from pyrrhic.cli.cat import config, index, masterkey, pack, snapshot
+from pyrrhic.cli.ls import ls
 from pyrrhic.cli.snapshots import snapshots
 from pyrrhic.repo.repository import Repository, get_masterkey
 
@@ -69,3 +70,12 @@ def test_snapshots(capfd):
     snapshots()
     output = capfd.readouterr().out
     assert output.startswith("ID")
+
+
+def test_ls(capfd):
+    "Returns a list of paths"
+    ls("latest", False)
+    lines = capfd.readouterr().out.splitlines()
+    for s in lines:
+        path = Path(s)
+        assert path.is_absolute()
