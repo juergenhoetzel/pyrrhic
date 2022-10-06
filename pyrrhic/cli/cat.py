@@ -10,6 +10,7 @@ from rich import print
 
 import typer
 
+
 app: typer.Typer = typer.Typer(add_completion=False)
 
 
@@ -38,11 +39,8 @@ def config():
 def index(index_id: str):
     """Return index JSON to stdout"""
     state = pyrrhic.cli.state
-    indexes = state.repository.get_index(index_id)
-    if len(indexes) == 1:
-        print(indexes[0].json(indent=2))
-    else:
-        raise ValueError(f"Invalid Index: {index_id}")
+    index = state.repository.get_index(index_id)
+    print(index.index)
 
 
 @app.command()

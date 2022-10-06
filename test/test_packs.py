@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pyrrhic.repo.index import Index
 from pyrrhic.repo.pack import Pack
 from pyrrhic.repo.repository import Repository, get_masterkey
 
@@ -22,10 +23,9 @@ def test_load_pack(masterkey):
 
 def test_index_matches_packs(masterkey):
     repo = Repository(Path(REPO_BASE) / "restic_test_repository", masterkey)
-    indexes = repo.get_index(INDEX_ID)
-    assert len(indexes) == 1
-
-    for index_pack in indexes[0].packs:
+    index = repo.get_index(INDEX_ID)
+    assert type(index) == Index
+    for index_pack in index.index:
         p = Pack(repo.repository, masterkey, index_pack.id)
         for index_blob in index_pack.blobs:
             print("Checking ", index_blob.id)

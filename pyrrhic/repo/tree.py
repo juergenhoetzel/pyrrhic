@@ -31,18 +31,17 @@ class Tree(BaseModel):
 
 
 def get_node_blob(repo: Repository, blob_id: str) -> bytes:
-    for index in repo.get_index():
-        for packref in index.packs:
-            for blob in packref.blobs:
-                if blob.id == blob_id:
-                    pack = Pack(repo.repository, repo.masterkey, packref.id)
-                    with open(repo.repository / "data" / pack.pack_id[:2] / pack.pack_id, "rb") as f:
-                        f.seek(blob.offset)
-                        buffer = f.read(blob.length)
-                        plaintext = decrypt_mac(repo.masterkey, buffer)
-                        if hashlib.sha256(plaintext).hexdigest() != blob.id:
-                            raise ValueError(f"Invalid hash for blob {blob.id}")
-                        return plaintext
+    index = repo.get_index()
+    packref = index.get_packref(blob_id)
+    pack = Pack(repo.repository, repo.masterkey, packref.id)
+    blob = packref.blob
+    with open(repo.repository / "data" / pack.pack_id[:2] / pack.pack_id, "rb") as f:
+        f.seek(blob.offset)
+        buffer = f.read(blob.length)
+        plaintext = decrypt_mac(repo.masterkey, buffer)
+        if hashlib.sha256(plaintext).hexdigest() != blob.id:
+            raise ValueError(f"Invalid hash for blob {blob.id}")
+        return plaintext
     raise ValueError(f"Can't find blob id {blob_id}")
 
 

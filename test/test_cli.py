@@ -7,7 +7,6 @@ from pyrrhic.cli.cat import config, index, masterkey, pack, snapshot
 from pyrrhic.cli.snapshots import snapshots
 from pyrrhic.repo.repository import Repository, get_masterkey
 
-
 pyrrhic.cli.state.repository = Repository(
     Path("restic_test_repositories/restic_test_repository"),
     get_masterkey(Path("restic_test_repositories/restic_test_repository"), "password"),
@@ -47,7 +46,7 @@ def test_cat_snapshot(capfd):
 
 def test_cat_index(capfd):
     index("0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2")
-    assert "packs" in literal_eval(capfd.readouterr().out)
+    assert "PackList" in capfd.readouterr().out
 
 
 def test_cat_pack(capfdbinary):
