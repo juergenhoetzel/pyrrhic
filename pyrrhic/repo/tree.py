@@ -9,6 +9,7 @@ from pyrrhic.repo.pack import Pack
 from pyrrhic.repo.repository import Repository
 
 
+# FIXME: Move to msgspec
 class Node(BaseModel):
     name: str
     type: str

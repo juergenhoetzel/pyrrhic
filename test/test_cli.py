@@ -1,4 +1,5 @@
 import hashlib
+import json
 from ast import literal_eval
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from pyrrhic.cli.cat import config, index, masterkey, pack, snapshot
 from pyrrhic.cli.ls import ls
 from pyrrhic.cli.snapshots import snapshots
 from pyrrhic.repo.repository import Repository, get_masterkey
+
 
 pyrrhic.cli.state.repository = Repository(
     Path("restic_test_repositories/restic_test_repository"),
@@ -33,21 +35,24 @@ def test_cat_config(capfd):
 
 def test_cat_snapshot(capfd):
     snapshot("dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c")
-    assert literal_eval(capfd.readouterr().out) == {
-        "id": "dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c",
+    out = capfd.readouterr().out
+    assert json.loads(out) == {
         "time": "2022-07-19T21:52:28.692251+02:00",
         "tree": "a5dbcc77f63f5dd4f4c67c988aba4a19817aaa9d6c34a6021236a5d40ce653e1",
         "paths": ["/home/juergen/shared/python/pyrrhic/test"],
         "hostname": "shaun",
         "username": "juergen",
+        "id": "dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c",
         "uid": 1000,
         "gid": 1000,
+        "excludes": None,
+        "tags": None,
     }
 
 
 def test_cat_index(capfd):
     index("0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2")
-    assert "PackList" in capfd.readouterr().out
+    assert "BlobList" in capfd.readouterr().out
 
 
 def test_cat_pack(capfdbinary):
