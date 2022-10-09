@@ -9,7 +9,6 @@ from pyrrhic.cli.ls import ls
 from pyrrhic.cli.snapshots import snapshots
 from pyrrhic.repo.repository import Repository, get_masterkey
 
-
 pyrrhic.cli.state.repository = Repository(
     Path("restic_test_repositories/restic_test_repository"),
     get_masterkey(Path("restic_test_repositories/restic_test_repository"), "password"),
@@ -74,7 +73,7 @@ def test_cat_pack_header(capfd):
 def test_snapshots(capfd):
     snapshots()
     output = capfd.readouterr().out
-    assert output.startswith("ID")
+    assert "ID" in output
 
 
 def test_ls(capfd):
