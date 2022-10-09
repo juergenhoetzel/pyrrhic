@@ -14,8 +14,7 @@ class resticdatetime(datetime):
     def fromresticformat(cls, date_string):
         """Construct a datetime from the restic datetime str (strip nanoseconds)."""
         date_string = DATETIME_TRAILING_NS_RE.sub(r"\1+", date_string)
-        dt = datetime.fromisoformat(date_string)
-        return cls.fromisoformat(dt)
+        return cls.fromisoformat(date_string)
 
 
 def resticdatetime_enc_hook(obj: Any) -> Any:
@@ -27,6 +26,6 @@ def resticdatetime_enc_hook(obj: Any) -> Any:
 
 def resticdatetime_dec_hook(type: Type, obj: Any) -> Any:
     if type is resticdatetime:
-        return resticdatetime.fromisoformat(DATETIME_TRAILING_NS_RE.sub(r"\1+", obj))
+        return resticdatetime.fromresticformat(obj)
     else:
         raise TypeError(f"Objects of type {type} are not supported")
