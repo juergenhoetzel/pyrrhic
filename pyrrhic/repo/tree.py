@@ -1,16 +1,14 @@
 import hashlib
-import json
-from typing import List
+from typing import Optional
 
-from pydantic import BaseModel
+import msgspec
 
 from pyrrhic.crypto.keys import decrypt_mac
 from pyrrhic.repo.pack import Pack
 from pyrrhic.repo.repository import Repository
 
 
-# FIXME: Move to msgspec
-class Node(BaseModel):
+class Node(msgspec.Struct):
     name: str
     type: str
     mode: int
@@ -22,13 +20,13 @@ class Node(BaseModel):
     size: int = 0
     user: str
     inode: int
-    content: List[str] | None
-    linktarget: str | None
-    subtree: str | None
+    content: Optional[list[str]] = None
+    linktarget: Optional[str] = None
+    subtree: Optional[str] = None
 
 
-class Tree(BaseModel):
-    nodes: List[Node]
+class Tree(msgspec.Struct):
+    nodes: list[Node]
 
 
 def get_node_blob(repo: Repository, blob_id: str) -> bytes:
@@ -48,4 +46,4 @@ def get_node_blob(repo: Repository, blob_id: str) -> bytes:
 
 def get_tree(repo: Repository, tree_id: str) -> Tree:
     plaintext_blob = get_node_blob(repo, tree_id)
-    return Tree(**json.loads(plaintext_blob))
+    return msgspec.json.decode(plaintext_blob, type=Tree)
