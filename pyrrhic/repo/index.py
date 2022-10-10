@@ -6,6 +6,9 @@ import msgspec
 
 from pyrrhic.crypto.keys import MasterKey, decrypt_mac
 
+from rich.console import Console
+from rich.progress import track
+
 
 class Blob(msgspec.Struct):
     id: str
@@ -35,6 +38,8 @@ def _get_index(key: MasterKey, repo_path: Path, index_prefix: str, glob: bool) -
         paths = (repo_path / "index").glob(f"{index_prefix}*")
     else:
         paths = (repo_path / "index" / name for name in [index_prefix])
+    if Console().is_terminal:  # FIXME: Should be configurable
+        paths = track(list(paths), "Loading index")
     return [packs for index_path in paths for packs in msgspec.json.decode(decrypt_mac(key, index_path.read_bytes()), type=RecPackList).packs]
 
 
