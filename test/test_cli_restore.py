@@ -1,8 +1,6 @@
 import hashlib
 from pathlib import Path
 
-import pytest
-
 from pyrrhic.cli import state
 from pyrrhic.cli.restore import restore
 from pyrrhic.repo.repository import Repository, get_masterkey
