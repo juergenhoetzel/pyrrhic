@@ -13,7 +13,6 @@ requires-python = ">=3.7"
 dependencies = [
 	     "cryptography >= 37.0.4",
 	     "typer[all] >= 0.3.2",
-	     "pydantic >= 1.9",	#FIXME: Move all to msgspec
 	     "msgspec >= 0.9"
 ]
 

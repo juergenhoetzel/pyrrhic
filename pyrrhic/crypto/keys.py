@@ -4,20 +4,22 @@ This module contains the crypto primitives used by restic.
 
 import json
 from base64 import b64decode, b64encode
-from datetime import datetime
+from dataclasses import dataclass
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import poly1305
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
-from pydantic import BaseModel, conbytes, validator
+import msgspec
+
+from pyrrhic.util import resticdatetime, resticdatetime_dec_hook
 
 # mask for key, (cf. http://cr.yp.to/mac/poly1305-20050329.pdf)
 _POLY1305KEYMASK = b"\xff\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f"
 
 
-class WrappedKey(BaseModel):
+class WrappedKey(msgspec.Struct):
     """Class that contain all data that is needed to derive the
     repository's master encryption and message authentication keys
     from a user's password."""
@@ -28,32 +30,26 @@ class WrappedKey(BaseModel):
     N: int
     r: int
     p: int
-    created: datetime
+    created: resticdatetime
     data: bytes
     salt: bytes
 
-    @validator("salt")
-    def salt_base64(cls, v):
-        return b64decode(v)
 
-    @validator("data")
-    def data_base64(cls, v):
-        return b64decode(v)
-
-
-class Mac(BaseModel):
+@dataclass(frozen=True)
+class Mac:
     """Class that holdes the Poly1305-AES parameters"""
 
-    k: conbytes(min_length=16, max_length=16)  # type: ignore[valid-type]
-    r: conbytes(min_length=16, max_length=16)  # type: ignore[valid-type]
+    k: bytes
+    r: bytes
 
 
-class MasterKey(BaseModel):
+@dataclass(frozen=True)
+class MasterKey:
     """Class that holds encryption and message authentication keys for a
     repository."""
 
     mac: Mac
-    encryption: conbytes(min_length=32, max_length=32)  # type: ignore[valid-type]
+    encryption: bytes
 
     def restic_json(self):
         """Return restic representation of Masterkey"""
@@ -70,9 +66,8 @@ class MasterKey(BaseModel):
 
 
 def load_key(key_path: str) -> WrappedKey:
-    with open(key_path) as f:
-        j = json.load(f)
-        return WrappedKey(**j)
+    with open(key_path, "rb") as f:  # fixme: use pathlib
+        return msgspec.json.decode(f.read(), type=WrappedKey, dec_hook=resticdatetime_dec_hook)
 
 
 def _poly1305_validate(nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes) -> bool:
@@ -125,4 +120,4 @@ def get_masterkey(path: str, password: bytes) -> MasterKey:
     encryption = b64decode(j["encrypt"])
     r = b64decode(j["mac"]["r"])
     k = b64decode(j["mac"]["k"])
-    return MasterKey(encryption=encryption, mac=Mac(k=k, r=r))
+    return MasterKey(Mac(k=k, r=r), encryption)
