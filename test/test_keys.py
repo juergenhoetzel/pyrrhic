@@ -13,13 +13,13 @@ import pytest
 
 REPO_BASE = "restic_test_repositories"
 KEY = "98f9e68226bf15a8e9616632df7c9df543e255b388bfca1cde0218009b77cdeb"
-KEYFILE = f"{REPO_BASE}/restic_test_repository/keys/{KEY}"  # noqa: E501
+KEYPATH = Path(f"{REPO_BASE}/restic_test_repository/keys/{KEY}")  # noqa: E501
 REPO = Path(REPO_BASE) / "restic_test_repository"
 BROKEN_REPO = Path(REPO_BASE) / "restic_broken_test_repository"
 
 
 def test_load_key():
-    key = load_key(KEYFILE)
+    key = load_key(KEYPATH)
     assert type(key) == WrappedKey
 
 

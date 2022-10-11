@@ -41,7 +41,7 @@ def get_masterkey(repository: Path, password: str) -> keys.MasterKey:
     keys_path = repository / "keys"
     for kf in keys_path.iterdir():
         try:
-            return keys.get_masterkey(str(kf), password.encode("utf8"))
+            return keys.get_masterkey(kf, password.encode("utf8"))
         except ValueError as err:
             last_err = err
     raise last_err

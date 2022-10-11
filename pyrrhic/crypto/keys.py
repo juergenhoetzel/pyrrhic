@@ -5,6 +5,7 @@ This module contains the crypto primitives used by restic.
 import json
 from base64 import b64decode, b64encode
 from dataclasses import dataclass
+from pathlib import Path
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import poly1305
@@ -65,9 +66,8 @@ class MasterKey:
         return hash(self.encryption + self.mac.k + self.mac.r)
 
 
-def load_key(key_path: str) -> WrappedKey:
-    with open(key_path, "rb") as f:  # fixme: use pathlib
-        return msgspec.json.decode(f.read(), type=WrappedKey, dec_hook=resticdatetime_dec_hook)
+def load_key(key_path: Path) -> WrappedKey:
+    return msgspec.json.decode(key_path.read_bytes(), type=WrappedKey, dec_hook=resticdatetime_dec_hook)
 
 
 def _poly1305_validate(nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes) -> bool:
@@ -98,7 +98,7 @@ def decrypt_mac(key: MasterKey, restic_blob: bytes) -> bytes:
     return _decrypt(key.encryption, nonce, ciphertext)
 
 
-def get_masterkey(path: str, password: bytes) -> MasterKey:
+def get_masterkey(path: Path, password: bytes) -> MasterKey:
     wrapped_key = load_key(path)
     kdf = Scrypt(
         wrapped_key.salt,
