@@ -33,25 +33,30 @@ class PackRef:
 
 
 @cache
-def _get_index(key: MasterKey, repo_path: Path, index_prefix: str, glob: bool) -> list[BlobList]:
+def _get_index(key: MasterKey, repo_path: Path, index_prefix: str, glob: bool) -> dict[str, PackRef]:
     if glob:
         paths = (repo_path / "index").glob(f"{index_prefix}*")
     else:
         paths = (repo_path / "index" / name for name in [index_prefix])
     if Console().is_terminal:  # FIXME: Should be configurable
         paths = track(list(paths), "Loading index")
-    return [packs for index_path in paths for packs in msgspec.json.decode(decrypt_mac(key, index_path.read_bytes()), type=RecPackList).packs]
+    d = {
+        blob.id: PackRef(packs.id, blob)
+        for index_path in paths
+        for packs in msgspec.json.decode(decrypt_mac(key, index_path.read_bytes()), type=RecPackList).packs
+        for blob in packs.blobs
+    }
+    return d
 
 
 class Index:
     "Internal Index representation"
-    index: list[BlobList]
+    index: dict[str, PackRef]
 
     def __init__(self, key: MasterKey, repo_path: Path, index_prefix: str, glob=True):
         self.index = _get_index(key, repo_path, index_prefix, glob)
 
     def get_packref(self, blob_id) -> PackRef:
-        packrefs = [PackRef(id=blob_list.id, blob=blob) for blob_list in self.index for blob in blob_list.blobs if blob.id == blob_id]
-        if len(packrefs) == 1:
-            return packrefs[0]
+        if packref := self.index.get(blob_id):
+            return packref
         raise ValueError(f"Invalid blob id {blob_id}")

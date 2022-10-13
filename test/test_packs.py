@@ -25,10 +25,9 @@ def test_index_matches_packs(masterkey):
     repo = Repository(Path(REPO_BASE) / "restic_test_repository", masterkey)
     index = repo.get_index(INDEX_ID)
     assert type(index) == Index
-    for index_pack in index.index:
-        p = Pack(repo.repository, masterkey, index_pack.id)
-        for index_blob in index_pack.blobs:
-            pack_blobs = p.get_blob_index()
-            assert (matching_blob := next((blob for blob in pack_blobs if blob["id"] == index_blob.id)))
-            assert matching_blob["offset"] == index_blob.offset
-            assert matching_blob["length"] == index_blob.length
+    for blob_id, packref in index.index.items():
+        p = Pack(repo.repository, masterkey, packref.id)
+        pack_blobs = p.get_blob_index()
+        assert (matching_blob := next((blob for blob in pack_blobs if blob["id"] == blob_id)))
+        assert matching_blob["offset"] == packref.blob.offset
+        assert matching_blob["length"] == packref.blob.length

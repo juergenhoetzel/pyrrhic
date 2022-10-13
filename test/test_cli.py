@@ -51,7 +51,13 @@ def test_cat_snapshot(capfd):
 
 def test_cat_index(capfd):
     index("0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2")
-    assert "BlobList" in capfd.readouterr().out
+    out = capfd.readouterr().out
+    assert "PackRef" in out
+    assert (
+        """'511d1c632ccad135d5407157154eccc17fcfaf501ad252b231c7ce41175473b9': PackRef(
+        id='46771395523ccd6dda16694f0ce775f9508a4c3e4527c385f55d8efafa36807f'"""
+        in out
+    )
 
 
 def test_cat_pack(capfdbinary):

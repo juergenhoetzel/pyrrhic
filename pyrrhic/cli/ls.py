@@ -1,16 +1,16 @@
 import operator
-
 import stat
 from dataclasses import dataclass
+
 import pyrrhic.cli.state as state
 from pyrrhic.repo.tree import Node, Tree, get_tree
 from pyrrhic.util import datetime_from_restic
 
 from rich import print
 from rich.table import Table
-import logging
-import typer
 
+
+import typer
 
 _MODE_STAT = {
     "dir": stat.S_IFDIR,
@@ -52,7 +52,6 @@ def _ls_breadth_first(tree: Tree, table: Table | None = None) -> None:
                 print(f"{pleaf.path}/{pleaf.node.name}")
         if pathnodes:
             pnode = pathnodes.pop()
-            logging.info(f"Getting {pnode.node.subtree} for {pnode.path}/{pnode.node.name} ")
             tree = get_tree(state.repository, pnode.node.subtree or "0123")  # just make mypy happy?
             # FIXME: Order by packref to improve performance
             pathnodes = [*[PathNode(f"{pnode.path}/{node.name}", node) for node in tree.nodes], *pathnodes]
