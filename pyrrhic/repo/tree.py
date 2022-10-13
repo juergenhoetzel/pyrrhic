@@ -1,6 +1,6 @@
 import hashlib
 from typing import Optional
-
+from logging import info
 import msgspec
 
 from pyrrhic.crypto.keys import decrypt_mac
@@ -32,6 +32,7 @@ class Tree(msgspec.Struct):
 def get_node_blob(repo: Repository, blob_id: str) -> bytes:
     index = repo.get_index()
     packref = index.get_packref(blob_id)
+    info(f"Getting Packref {packref}")
     pack = Pack(repo.repository, repo.masterkey, packref.id)
     blob = packref.blob
     with open(repo.repository / "data" / pack.pack_id[:2] / pack.pack_id, "rb") as f:
