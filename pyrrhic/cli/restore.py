@@ -3,6 +3,8 @@ import stat
 from logging import info, warn
 from pathlib import Path
 
+from rich.progress import track
+
 import pyrrhic.cli.state as state
 from pyrrhic.cli.util import catch_exception
 from pyrrhic.repo.tree import Tree, get_node_blob, get_tree
@@ -19,7 +21,7 @@ def _restore_recursive(tree: Tree, target: Path):
                 if node.content:  # possible empty file
                     info(f"Restoring {abs_path}: {len(node.content)} blobs")
                     with open(abs_path, "wb") as f:
-                        for content_id in node.content:
+                        for content_id in track(node.content, abs_path):
                             f.write(get_node_blob(state.repository, content_id))
 
             case "dir":
