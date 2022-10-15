@@ -40,10 +40,12 @@ def _get_index(key: MasterKey, repo_path: Path, index_prefix: str, glob: bool) -
         paths = (repo_path / "index" / name for name in [index_prefix])
     if Console().is_terminal:  # FIXME: Should be configurable
         paths = track(list(paths), "Loading index")
+
+    dec = msgspec.json.Decoder(type=RecPackList)
     d = {
         blob.id: PackRef(packs.id, blob)
         for index_path in paths
-        for packs in msgspec.json.decode(decrypt_mac(key, index_path.read_bytes()), type=RecPackList).packs
+        for packs in dec.decode(decrypt_mac(key, index_path.read_bytes())).packs
         for blob in packs.blobs
     }
     return d
