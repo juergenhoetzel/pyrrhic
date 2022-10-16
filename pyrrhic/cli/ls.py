@@ -2,7 +2,7 @@ import operator
 import stat
 
 import pyrrhic.cli.state as state
-from pyrrhic.repo.tree import Node, get_tree, walk_breadth_first
+from pyrrhic.repo.tree import Node, walk_breadth_first
 from pyrrhic.util import datetime_from_restic
 
 from rich import print
@@ -44,12 +44,11 @@ def ls(snapshot_prefix: str, long: bool = typer.Option(False, "--long", "-l", he
         raise ValueError(f"Index: {snapshot_prefix} not found")
     if next(snapshots, None):
         raise ValueError(f"Prefix {snapshot_prefix} matches multiple snapshots")
-    tree = get_tree(state.repository, snapshot.tree)
     if long:
         table = Table("mode", "user", "group", "size", "date", "filename", highlight=True)
-        for pleaf in walk_breadth_first(state.repository, tree):
+        for pleaf in walk_breadth_first(state.repository, snapshot.tree):
             _print_long(pleaf.node, pleaf.path, table)
         print(table)
     else:
-        for pleaf in walk_breadth_first(state.repository, tree):
+        for pleaf in walk_breadth_first(state.repository, snapshot.tree):
             print(f"{pleaf.path}/{pleaf.node.name}")

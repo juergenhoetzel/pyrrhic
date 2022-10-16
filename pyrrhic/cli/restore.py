@@ -5,13 +5,14 @@ from pathlib import Path
 
 import pyrrhic.cli.state as state
 from pyrrhic.cli.util import catch_exception
-from pyrrhic.repo.tree import Tree, get_node_blob, get_tree, walk_breadth_first
+from pyrrhic.repo.tree import ReaderCache, get_node_blob, walk_breadth_first
 
 from rich.progress import track
 
 
-def _restore(tree: Tree, target: Path):
-    for pnode in walk_breadth_first(state.repository, tree):
+def _restore(tree_id: str, target: Path):
+    rcache = ReaderCache(64)
+    for pnode in walk_breadth_first(state.repository, tree_id, rcache):
         node = pnode.node
         abs_path = target / Path(pnode.path).relative_to("/")
         mode = stat.S_IMODE(node.mode)
@@ -23,7 +24,7 @@ def _restore(tree: Tree, target: Path):
                     info(f"Restoring {pnode.path}: {len(node.content)} blobs")
                     with open(abs_path, "wb") as f:
                         for content_id in track(node.content, pnode.path):
-                            f.write(get_node_blob(state.repository, content_id))
+                            f.write(get_node_blob(state.repository, rcache, content_id))
 
             case "dir":
                 info(f"Creating directory {abs_path}")
@@ -44,5 +45,4 @@ def restore(snapshot_prefix: str, target: Path, help="Restore data from a snapsh
         raise ValueError(f"Index: {snapshot_prefix} not found")
     if next(snapshots, None):
         raise ValueError(f"Prefix {snapshot_prefix} matches multiple snapshots")
-    tree = get_tree(state.repository, snapshot.tree)
-    _restore(tree, target)
+    _restore(snapshot.tree, target)
