@@ -3,11 +3,11 @@ import stat
 from logging import info, warn
 from pathlib import Path
 
-from rich.progress import track
-
 import pyrrhic.cli.state as state
 from pyrrhic.cli.util import catch_exception
 from pyrrhic.repo.tree import Tree, get_node_blob, get_tree
+
+from rich.progress import track
 
 
 def _restore_recursive(tree: Tree, target: Path):

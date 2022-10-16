@@ -1,9 +1,8 @@
 import operator
 import stat
-from dataclasses import dataclass
 
 import pyrrhic.cli.state as state
-from pyrrhic.repo.tree import Node, Tree, get_tree
+from pyrrhic.repo.tree import Node, get_tree, walk_breadth_first
 from pyrrhic.util import datetime_from_restic
 
 from rich import print
@@ -33,30 +32,6 @@ def _print_long(node: Node, path: str, table: Table) -> None:
     table.add_row(f"{mode}", f"{node.uid}", f"{node.gid}", f"{node.size}", f"{mtime_str}", f"{path}/{name}")
 
 
-@dataclass(frozen=True)
-class PathNode:
-    "Represent a Node located at path"
-    path: str  # prefix path
-    node: Node
-
-
-def _ls_breadth_first(tree: Tree, table: Table | None = None) -> None:
-    pathnodes = [PathNode(f"/{node.name}", node) for node in tree.nodes]
-    while pathnodes:
-        pleafes = [pnode for pnode in pathnodes if not pnode.node.subtree]
-        pathnodes = [pnode for pnode in pathnodes if pnode.node.subtree]  # FIXME: traverses 2 times
-        for pleaf in pleafes:
-            if table:
-                _print_long(pleaf.node, pleaf.path, table)
-            else:
-                print(f"{pleaf.path}/{pleaf.node.name}")
-        if pathnodes:
-            pnode = pathnodes.pop()
-            tree = get_tree(state.repository, pnode.node.subtree or "0123")  # just make mypy happy?
-            # FIXME: Order by packref to improve performance
-            pathnodes = [*[PathNode(f"{pnode.path}/{node.name}", node) for node in tree.nodes], *pathnodes]
-
-
 def ls(snapshot_prefix: str, long: bool = typer.Option(False, "--long", "-l", help="Use a long listing (Unix ls -l)")):
     "List files in a snapshot"
     state.repository.get_snapshot(snapshot_prefix)
@@ -72,7 +47,9 @@ def ls(snapshot_prefix: str, long: bool = typer.Option(False, "--long", "-l", he
     tree = get_tree(state.repository, snapshot.tree)
     if long:
         table = Table("mode", "user", "group", "size", "date", "filename", highlight=True)
-        _ls_breadth_first(tree, table)
+        for pleaf in walk_breadth_first(state.repository, tree):
+            _print_long(pleaf.node, pleaf.path, table)
         print(table)
     else:
-        _ls_breadth_first(tree)
+        for pleaf in walk_breadth_first(state.repository, tree):
+            print(f"{pleaf.path}/{pleaf.node.name}")

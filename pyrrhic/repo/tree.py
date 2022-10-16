@@ -1,5 +1,6 @@
 import hashlib
-from typing import Optional
+from dataclasses import dataclass
+from typing import Iterator, Optional
 
 import msgspec
 
@@ -45,3 +46,23 @@ def get_node_blob(repo: Repository, blob_id: str) -> bytes:
 def get_tree(repo: Repository, tree_id: str) -> Tree:
     plaintext_blob = get_node_blob(repo, tree_id)
     return msgspec.json.decode(plaintext_blob, type=Tree)
+
+
+@dataclass(frozen=True)
+class PathNode:
+    "Represent a Node located at path"
+    path: str  # prefix path
+    node: Node
+
+
+def walk_breadth_first(repository: Repository, tree: Tree) -> Iterator[PathNode]:
+    pathnodes = [PathNode(f"/{node.name}", node) for node in tree.nodes]
+    while pathnodes:
+        pleafes = [pnode for pnode in pathnodes if not pnode.node.subtree]
+        pathnodes = [pnode for pnode in pathnodes if pnode.node.subtree]  # FIXME: traverses 2 times
+        for pleaf in pleafes:
+            yield pleaf
+        if pathnodes:
+            pnode = pathnodes.pop()
+            tree = get_tree(repository, pnode.node.subtree or "0123")  # just make mypy happy?
+            pathnodes = [*[PathNode(f"{pnode.path}/{node.name}", node) for node in tree.nodes], *pathnodes]
