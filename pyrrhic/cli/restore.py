@@ -1,4 +1,5 @@
 import operator
+import os
 import stat
 from logging import info, warn
 from pathlib import Path
@@ -11,6 +12,7 @@ from rich.progress import track
 
 
 def _restore(tree_id: str, target: Path):
+    isroot = os.geteuid() == 0
     rcache = ReaderCache(64)
     for pnode in walk_breadth_first(state.repository, tree_id, rcache):
         node = pnode.node
@@ -23,6 +25,8 @@ def _restore(tree_id: str, target: Path):
                     info(f"Restoring {pnode.path}: {len(node.content)} blobs")
                     with open(abs_path, "wb") as f:
                         abs_path.chmod(mode)
+                        if isroot:  # FIXME: chgrp to groups this user is member of
+                            os.chown(abs_path, node.uid, node.gid)
                         for content_id in track(node.content, pnode.path):
                             f.write(get_node_blob(state.repository, rcache, content_id))
 
