@@ -14,7 +14,6 @@ def _restore(tree: Tree, target: Path):
     for pnode in walk_breadth_first(state.repository, tree):
         node = pnode.node
         abs_path = target / Path(pnode.path).relative_to("/")
-        info(f"Checking {abs_path}")
         mode = stat.S_IMODE(node.mode)
         match node.type:
             case "file":
@@ -27,6 +26,7 @@ def _restore(tree: Tree, target: Path):
                             f.write(get_node_blob(state.repository, content_id))
 
             case "dir":
+                info(f"Creating directory {abs_path}")
                 abs_path.mkdir(mode)
             case _:
                 warn(f"{node.name}: {node.type} not implemented")

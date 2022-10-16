@@ -1,4 +1,5 @@
 import hashlib
+from copy import copy
 from dataclasses import dataclass
 from typing import Iterator, Optional
 
@@ -60,9 +61,11 @@ def walk_breadth_first(repository: Repository, tree: Tree) -> Iterator[PathNode]
     while pathnodes:
         pleafes = [pnode for pnode in pathnodes if not pnode.node.subtree]
         pathnodes = [pnode for pnode in pathnodes if pnode.node.subtree]  # FIXME: traverses 2 times
-        for pleaf in pleafes + pathnodes:
+        for pleaf in pleafes:
             yield pleaf
         if pathnodes:
             pnode = pathnodes.pop()
+            node_without_subdir = copy(pnode.node)
+            node_without_subdir.subtree = None
             tree = get_tree(repository, pnode.node.subtree or "0123")  # just make mypy happy?
-            pathnodes = [*[PathNode(f"{pnode.path}/{node.name}", node) for node in tree.nodes], *pathnodes]
+            pathnodes = [PathNode(pnode.path, node_without_subdir), *[PathNode(f"{pnode.path}/{node.name}", node) for node in tree.nodes], *pathnodes]
