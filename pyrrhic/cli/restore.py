@@ -19,10 +19,10 @@ def _restore(tree_id: str, target: Path):
         match node.type:
             case "file":
                 # FIXME: Create temporary unique file and do atomic rename
-                abs_path.touch(mode, exist_ok=False)  # FIXME: UID/GID
                 if node.content:  # possible empty file
                     info(f"Restoring {pnode.path}: {len(node.content)} blobs")
                     with open(abs_path, "wb") as f:
+                        abs_path.chmod(mode)
                         for content_id in track(node.content, pnode.path):
                             f.write(get_node_blob(state.repository, rcache, content_id))
 
