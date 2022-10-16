@@ -5,18 +5,20 @@ from pathlib import Path
 
 import pyrrhic.cli.state as state
 from pyrrhic.cli.util import catch_exception
-from pyrrhic.repo.tree import Tree, get_node_blob, get_tree
+from pyrrhic.repo.tree import Tree, get_node_blob, get_tree, walk_breadth_first
 
 from rich.progress import track
 
 
-def _restore_recursive(tree: Tree, target: Path):
-    for node in tree.nodes:
-        abs_path = target / node.name
+def _restore(tree: Tree, target: Path):
+    for pnode in walk_breadth_first(state.repository, tree):
+        node = pnode.node
+        abs_path = target / Path(pnode.path).relative_to("/")
+        info(f"Checking {abs_path}")
         mode = stat.S_IMODE(node.mode)
         match node.type:
             case "file":
-                # FIXME: Create temporary unique file
+                # FIXME: Create temporary unique file and do atomic rename
                 abs_path.touch(mode, exist_ok=False)  # FIXME: UID/GID
                 if node.content:  # possible empty file
                     info(f"Restoring {abs_path}: {len(node.content)} blobs")
@@ -25,10 +27,7 @@ def _restore_recursive(tree: Tree, target: Path):
                             f.write(get_node_blob(state.repository, content_id))
 
             case "dir":
-                info(f"Restoring dir {abs_path}")
                 abs_path.mkdir(mode)
-                if node.subtree:
-                    _restore_recursive(get_tree(state.repository, node.subtree), abs_path)
             case _:
                 warn(f"{node.name}: {node.type} not implemented")
 
@@ -46,4 +45,4 @@ def restore(snapshot_prefix: str, target: Path, help="Restore data from a snapsh
     if next(snapshots, None):
         raise ValueError(f"Prefix {snapshot_prefix} matches multiple snapshots")
     tree = get_tree(state.repository, snapshot.tree)
-    _restore_recursive(tree, target)
+    _restore(tree, target)
