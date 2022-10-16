@@ -60,7 +60,7 @@ def walk_breadth_first(repository: Repository, tree: Tree) -> Iterator[PathNode]
     while pathnodes:
         pleafes = [pnode for pnode in pathnodes if not pnode.node.subtree]
         pathnodes = [pnode for pnode in pathnodes if pnode.node.subtree]  # FIXME: traverses 2 times
-        for pleaf in pleafes:
+        for pleaf in pleafes + pathnodes:
             yield pleaf
         if pathnodes:
             pnode = pathnodes.pop()
