@@ -20,9 +20,9 @@ def _restore(tree: Tree, target: Path):
                 # FIXME: Create temporary unique file and do atomic rename
                 abs_path.touch(mode, exist_ok=False)  # FIXME: UID/GID
                 if node.content:  # possible empty file
-                    info(f"Restoring {abs_path}: {len(node.content)} blobs")
+                    info(f"Restoring {pnode.path}: {len(node.content)} blobs")
                     with open(abs_path, "wb") as f:
-                        for content_id in track(node.content, abs_path):
+                        for content_id in track(node.content, pnode.path):
                             f.write(get_node_blob(state.repository, content_id))
 
             case "dir":
