@@ -1,7 +1,7 @@
 import operator
 import os
 import stat
-from logging import info, warn
+from logging import debug, warn
 from pathlib import Path
 
 import pyrrhic.cli.state as state
@@ -10,10 +10,13 @@ from pyrrhic.repo.tree import ReaderCache, get_node_blob, walk_breadth_first
 
 from rich.progress import track
 
+import typer
 
-def _restore(tree_id: str, target: Path):
+
+def _restore(tree_id: str, target: Path, resume=False):
     isroot = os.geteuid() == 0
     rcache = ReaderCache(64)
+    index = state.repository.get_index()
     for pnode in walk_breadth_first(state.repository, tree_id, rcache):
         node = pnode.node
         abs_path = target / Path(pnode.path).relative_to("/")
@@ -22,23 +25,60 @@ def _restore(tree_id: str, target: Path):
             case "file":
                 # FIXME: Create temporary unique file and do atomic rename
                 if node.content:  # possible empty file
-                    info(f"Restoring {pnode.path}: {len(node.content)} blobs")
-                    with open(abs_path, "wb") as f:
-                        abs_path.chmod(mode)
-                        if isroot:  # FIXME: chgrp to groups this user is member of
-                            os.chown(abs_path, node.uid, node.gid)
-                        for content_id in track(node.content, pnode.path):
-                            f.write(get_node_blob(state.repository, rcache, content_id))
+                    resume_from = 0
+                    blobs = [index.get_packref(content).blob for content in node.content]
+                    if abs_path.is_file():
+                        if not resume:
+                            raise FileExistsError(f"File exists: {abs_path}")
+                        resume_from = os.stat(abs_path).st_size
+                        if resume_from == node.size:
+                            debug(f"Already restored {pnode.path}")
+                            continue
+                        if resume_from > node.size:
+                            raise ValueError(f"Existing file {abs_path} is larger")
+                    with open(abs_path, "ab") as f:
+                        current_pos = 0
+                        for i, blob in enumerate(track(blobs, pnode.path)):
+                            if resume_from == current_pos:  # sanity check
+                                bs = get_node_blob(state.repository, rcache, blob.id)
+                                current_pos += len(bs)
+                                resume_from += len(bs)
+                                f.write(bs)
+                                debug(f"Wrote till {current_pos}")
+                            elif resume_from < current_pos:
+                                truncate_to = current_pos - len(get_node_blob(state.repository, rcache, blobs[i - 1].id))
+                                f.truncate(truncate_to)
+                                debug(f"Truncated to {truncate_to}")
+                                f.write(get_node_blob(state.repository, rcache, blobs[i - 1].id))
+                                bs = get_node_blob(state.repository, rcache, blob.id)
+                                f.write(bs)
+                                current_pos += len(bs)
+                                resume_from = current_pos
+                            else:
+                                debug(f"Ignoring pos {current_pos}")
+                                current_pos += blob.length - 32  # FIXME: Compressed blocks also have uncompressed length
+                    abs_path.chmod(mode)
+                    if isroot:  # FIXME: chgrp to groups this user is member of
+                        os.chown(abs_path, node.uid, node.gid)
 
             case "dir":
-                info(f"Creating directory {abs_path}")
-                abs_path.mkdir(mode)
+                debug(f"Creating directory {abs_path}")
+                try:
+                    abs_path.mkdir(mode)
+                except FileExistsError as e:
+                    if not resume:
+                        raise e
             case _:
                 warn(f"{node.name}: {node.type} not implemented")
 
 
 @catch_exception(OSError, exit_code=2)
-def restore(snapshot_prefix: str, target: Path, help="Restore data from a snapshot"):
+def restore(
+    snapshot_prefix: str,
+    target: Path,
+    resume: bool = typer.Option(False, "--resume", "-r", help="resume exiting files in target"),
+    help="Restore data from a snapshot",
+):
     state.repository.get_snapshot(snapshot_prefix)
     if snapshot_prefix == "latest":  # FIXME: Duplicated code (ls command)
         snapshots = iter(sorted(state.repository.get_snapshot(), key=operator.attrgetter("time"), reverse=True)[:1])
@@ -49,4 +89,4 @@ def restore(snapshot_prefix: str, target: Path, help="Restore data from a snapsh
         raise ValueError(f"Index: {snapshot_prefix} not found")
     if next(snapshots, None):
         raise ValueError(f"Prefix {snapshot_prefix} matches multiple snapshots")
-    _restore(snapshot.tree, target)
+    _restore(snapshot.tree, target, resume)
