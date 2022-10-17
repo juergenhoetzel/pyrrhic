@@ -1,4 +1,6 @@
 import hashlib
+import logging
+import os
 from pathlib import Path
 
 from pyrrhic.cli import state
@@ -23,7 +25,19 @@ RESTORE_FILES = [
 ]
 
 
-def test_restore(tmp_path):
+def test_restore(capfd, tmp_path, caplog):
     restore(SNAPSHOT_PREFIX, target=tmp_path)
+    for snapshot_path, sha1sum in RESTORE_FILES:
+        assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum
+    # Resume backup
+    resume_from = os.stat(tmp_path / "usr/share/cracklib/cracklib-small").st_size
+    with open(tmp_path / "usr/share/cracklib/cracklib-double", "a") as f:
+        f.truncate(resume_from)
+
+    caplog.set_level(logging.INFO)
+    restore(SNAPSHOT_PREFIX, target=tmp_path, resume=True)
+    for record in caplog.records:
+        assert "x" in record
+    assert capfd.readouterr().out == ""
     for snapshot_path, sha1sum in RESTORE_FILES:
         assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum
