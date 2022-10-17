@@ -39,23 +39,23 @@ def _restore(tree_id: str, target: Path, resume=False):
                     with open(abs_path, "ab") as f:
                         current_pos = 0
                         for i, blob in enumerate(track(blobs, pnode.path)):
+                            debug(f"Blob {i} of {abs_path}")
                             if resume_from == current_pos:  # sanity check
                                 bs = get_node_blob(state.repository, rcache, blob.id)
                                 current_pos += len(bs)
-                                resume_from += len(bs)
+                                resume_from = current_pos
                                 f.write(bs)
                                 debug(f"Wrote till {current_pos}")
-                            elif resume_from < current_pos:
-                                truncate_to = current_pos - len(get_node_blob(state.repository, rcache, blobs[i - 1].id))
-                                f.truncate(truncate_to)
-                                debug(f"Truncated to {truncate_to}")
-                                f.write(get_node_blob(state.repository, rcache, blobs[i - 1].id))
+                            elif current_pos < resume_from < (current_pos + blob.length - 32):
+                                f.truncate(current_pos)
+                                debug(f"Resuming from {current_pos}")
                                 bs = get_node_blob(state.repository, rcache, blob.id)
                                 f.write(bs)
                                 current_pos += len(bs)
                                 resume_from = current_pos
+                                debug(f"Wrote till {current_pos}")
                             else:
-                                debug(f"Ignoring pos {current_pos}")
+                                debug(f"{abs_path} Ignoring pos {current_pos}")
                                 current_pos += blob.length - 32  # FIXME: Compressed blocks also have uncompressed length
                     abs_path.chmod(mode)
                     if isroot:  # FIXME: chgrp to groups this user is member of

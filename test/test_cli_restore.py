@@ -30,14 +30,15 @@ def test_restore(capfd, tmp_path, caplog):
     for snapshot_path, sha1sum in RESTORE_FILES:
         assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum
     # Resume backup
-    resume_from = os.stat(tmp_path / "usr/share/cracklib/cracklib-small").st_size
+    resume_from = os.stat(tmp_path / "usr/share/cracklib/cracklib-double").st_size - 10
+    caplog.set_level(logging.DEBUG)
+    logging.debug(f"Should resume from {resume_from}")
     with open(tmp_path / "usr/share/cracklib/cracklib-double", "a") as f:
         f.truncate(resume_from)
+        logging.debug(f"truncated {tmp_path / 'usr/share/cracklib/cracklib-double'}")
 
-    caplog.set_level(logging.INFO)
     restore(SNAPSHOT_PREFIX, target=tmp_path, resume=True)
-    for record in caplog.records:
-        assert "x" in record
-    assert capfd.readouterr().out == ""
+    assert len([record.msg for record in caplog.records if "Resuming from 805516" in record.msg]) == 1
+
     for snapshot_path, sha1sum in RESTORE_FILES:
         assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum
