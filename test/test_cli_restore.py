@@ -3,17 +3,12 @@ import logging
 import os
 from pathlib import Path
 
-from pyrrhic.cli import state
+import pyrrhic.cli.state
 from pyrrhic.cli.restore import restore
-from pyrrhic.repo.repository import Repository, get_masterkey
 
-REPO_BASE = Path("restic_test_repositories")
-SNAPSHOT_PREFIX = "7f9faf70"
+import pytest
 
-state.repository = Repository(
-    Path("restic_test_repositories/restic_test_repository"),
-    get_masterkey(Path("restic_test_repositories/restic_test_repository"), "password"),
-)
+from .params import params
 
 RESTORE_FILES = [
     (Path("usr/share/cracklib/cracklib.magic"), "c4b2b3034acf5b35b60a8de27c7ac33f54c6b4ea"),
@@ -25,8 +20,10 @@ RESTORE_FILES = [
 ]
 
 
-def test_restore(capfd, tmp_path, caplog):
-    restore(SNAPSHOT_PREFIX, target=tmp_path)
+@pytest.mark.parametrize("repository,snapshot_cracklib", [(p["repo"], p["snapshot_cracklib"]) for p in params])
+def test_restore(capfd, tmp_path, caplog, repository, snapshot_cracklib):
+    pyrrhic.cli.state.repository = repository
+    restore(snapshot_cracklib, target=tmp_path)
     for snapshot_path, sha1sum in RESTORE_FILES:
         assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum
     # Resume backup
@@ -37,8 +34,8 @@ def test_restore(capfd, tmp_path, caplog):
         f.truncate(resume_from)
         logging.debug(f"truncated {tmp_path / 'usr/share/cracklib/cracklib-double'}")
 
-    restore(SNAPSHOT_PREFIX, target=tmp_path, resume=True)
-    assert len([record.msg for record in caplog.records if "Resuming from 805516" in record.msg]) == 1
+    restore(snapshot_cracklib, target=tmp_path, resume=True)
+    assert len([record.msg for record in caplog.records if "Resuming from" in record.msg]) == 1
 
     for snapshot_path, sha1sum in RESTORE_FILES:
         assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum

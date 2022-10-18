@@ -40,13 +40,14 @@ def _restore(tree_id: str, target: Path, resume=False):
                         current_pos = 0
                         for i, blob in enumerate(track(blobs, pnode.path)):
                             debug(f"Blob {i} of {abs_path}")
+                            blength = blob.uncompressed_length or (blob.length - 32)
                             if current_pos < resume_from:
-                                if resume_from < (current_pos + blob.length - 32):  # FIXME: Compressed blocks also have uncompressed length
+                                if resume_from < (current_pos + blength):
                                     f.truncate(current_pos)
                                     debug(f"Resuming from {current_pos}")
                                 else:
                                     debug(f"{abs_path} Ignoring pos {current_pos} in resumed file")
-                                    current_pos += blob.length - 32  # FIXME: Compressed blocks also have uncompressed length
+                                    current_pos += blength
                                     continue
                             bs = get_node_blob(state.repository, rcache, blob.id)
                             current_pos += len(bs)

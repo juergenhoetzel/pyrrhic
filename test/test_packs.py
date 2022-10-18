@@ -1,33 +1,19 @@
-from pathlib import Path
-
 from pyrrhic.repo.index import Index
 from pyrrhic.repo.pack import Pack
-from pyrrhic.repo.repository import Repository, get_masterkey
 
 import pytest
 
-REPO_BASE = "restic_test_repositories"
-INDEX_ID = "0de57faa699ec0450ddbafb789e165b4e1a3dbe3a09b071075f09ebbfbd6f4b2"
-TEST_REPO = Path("./restic_test_repositories/restic_test_repository")
+from .params import params
 
 
-@pytest.fixture
-def masterkey():
-    return get_masterkey(TEST_REPO, "password")
-
-
-def test_load_pack(masterkey):
-    p = Pack(TEST_REPO, masterkey, "46771395523ccd6dda16694f0ce775f9508a4c3e4527c385f55d8efafa36807f")
-    assert p
-
-
-def test_index_matches_packs(masterkey):
-    repo = Repository(Path(REPO_BASE) / "restic_test_repository", masterkey)
-    index = repo.get_index(INDEX_ID)
+@pytest.mark.parametrize("repo", [(p["repo"]) for p in params])
+def test_index_matches_packs(repo):
+    index = repo.get_index()
     assert type(index) == Index
     for blob_id, packref in index.index.items():
-        p = Pack(repo.repository, masterkey, packref.id)
+        p = Pack(repo.repository, repo.masterkey, packref.id)
         pack_blobs = p.get_blob_index()
-        assert (matching_blob := next((blob for blob in pack_blobs if blob["id"] == blob_id)))
-        assert matching_blob["offset"] == packref.blob.offset
-        assert matching_blob["length"] == packref.blob.length
+        assert (matching_blob := next((blob for blob in pack_blobs if blob.hash.hex() == blob_id)))
+        assert matching_blob.offset == packref.blob.offset
+        assert matching_blob.length == packref.blob.length
+        assert matching_blob.uncompressed_length == packref.blob.uncompressed_length

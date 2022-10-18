@@ -2,6 +2,8 @@ import re
 from datetime import datetime
 from typing import Any, Type
 
+import zstandard
+
 DATETIME_TRAILING_NS_RE = re.compile(r"(\.[0-9]{6})[0-9]*\+")
 
 
@@ -29,3 +31,16 @@ def resticdatetime_dec_hook(type: Type, obj: Any) -> Any:
         return resticdatetime.fromresticformat(obj)
     else:
         raise TypeError(f"Objects of type {type} are not supported")
+
+
+_zdec = zstandard.ZstdDecompressor()
+
+
+def decompress(b: bytes, uncompressed_size: int) -> bytes:
+    return _zdec.decompress(b, uncompressed_size)
+
+
+def maybe_decompress(b: bytes) -> bytes:
+    if b[0] == 2:  # compressed v2 format
+        return _zdec.decompress(b[1:], max_output_size=16 * 1024 * 1024 * 1024)  # from restic source code
+    return b

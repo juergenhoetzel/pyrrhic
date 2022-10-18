@@ -7,6 +7,7 @@ import msgspec
 
 import pyrrhic.cli.state
 from pyrrhic.cli.util import catch_exception
+from pyrrhic.repo.pack import blob_to_dict
 from pyrrhic.util import resticdatetime_enc_hook
 
 from rich import print, print_json
@@ -70,8 +71,9 @@ def pack(pack_id: str, header: bool = typer.Option(False, "--header", help="Outp
     """Return pack to stdout"""
     state = pyrrhic.cli.state
     pack = state.repository.get_pack(pack_id)
+
     if header:
-        print(list(pack.get_blob_index()))
+        print([blob_to_dict(blob) for blob in pack.get_blob_index()])
     else:
         with os.fdopen(sys.stdout.fileno(), "wb", closefd=False) as stdout, open(pack.path, "rb") as pack_fd:
             shutil.copyfileobj(pack_fd, stdout)

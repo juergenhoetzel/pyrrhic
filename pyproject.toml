@@ -13,6 +13,7 @@ requires-python = ">=3.7"
 dependencies = [
 	     "cryptography >= 37.0.4",
 	     "typer[all] >= 0.3.2",
+	     "zstandard",
 	     "msgspec >= 0.9"
 ]
 

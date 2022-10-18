@@ -5,6 +5,7 @@ from pathlib import Path
 import msgspec
 
 from pyrrhic.crypto.keys import MasterKey, decrypt_mac
+from pyrrhic.util import maybe_decompress
 
 from rich.console import Console
 from rich.progress import track
@@ -15,6 +16,7 @@ class Blob(msgspec.Struct):
     type: str
     offset: int
     length: int
+    uncompressed_length: int | None = None
 
 
 class BlobList(msgspec.Struct):
@@ -42,10 +44,11 @@ def _get_index(key: MasterKey, repo_path: Path, index_prefix: str, glob: bool) -
         paths = track(list(paths), "Loading index")
 
     dec = msgspec.json.Decoder(type=RecPackList)
+
     d = {
         blob.id: PackRef(packs.id, blob)
         for index_path in paths
-        for packs in dec.decode(decrypt_mac(key, index_path.read_bytes())).packs
+        for packs in dec.decode(maybe_decompress(decrypt_mac(key, index_path.read_bytes()))).packs
         for blob in packs.blobs
     }
     return d

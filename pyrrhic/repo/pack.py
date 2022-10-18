@@ -2,36 +2,19 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from struct import unpack
+from typing import Optional
 
 from pyrrhic.crypto.keys import MasterKey, decrypt_mac
 
 
 @dataclass(frozen=True)
 class Blob:
+    type: str  # FIXME: Use enum
     pack_id: str
     offset: int
     length: int
     hash: bytes
-
-
-@dataclass(frozen=True)
-class DataBlob(Blob):
-    pass
-
-
-@dataclass(frozen=True)
-class TreeBlob(Blob):
-    pass
-
-
-@dataclass(frozen=True)
-class CompressedDataBlob(Blob):
-    length_uncompressed: int
-
-
-@dataclass(frozen=True)
-class CompressedTreeBlob:
-    length_uncompressed: int
+    uncompressed_length: Optional[int] = None
 
 
 class Pack:
@@ -54,24 +37,31 @@ class Pack:
             match header[0]:
                 case 0:
                     length_encrypted = unpack("<I", header[1:5])[0]
-                    yield DataBlob(self.pack_id, offset, length_encrypted, header[5 : 5 + 32])
+                    yield Blob("Data", self.pack_id, offset, length_encrypted, header[5 : 5 + 32])
                     header = header[(5 + 32) :]
                 case 1:
                     length_encrypted = unpack("<I", header[1:5])[0]
-                    yield TreeBlob(self.pack_id, offset, length_encrypted, header[5 : 5 + 32])
+                    yield Blob("Tree", self.pack_id, offset, length_encrypted, header[5 : 5 + 32])
                     header = header[(5 + 32) :]
                 case 2:
-                    length_encrypted, length_plaintext = unpack("<I<I", header[1:9])  # FIXME: Wrong in Restic-specification, shoud be length_uncompressed?
-                    yield CompressedDataBlob(self.pack_id, offset, length_encrypted, header[9 : 9 + 32], length_plaintext)
+                    length_encrypted, length_uncompressed = unpack("<II", header[1:9])  # FIXME: Wrong in Restic-specification, shoud be length_uncompressed?
+                    yield Blob("Blob", self.pack_id, offset, length_encrypted, header[9 : 9 + 32], length_uncompressed)
                     header = header[9 + 32 :]
                 case 3:
-                    length_encrypted, length_plaintext = unpack("<I<I", header[1:9])
-                    yield CompressedTreeBlob(self.pack_id, offset, length_encrypted, header[9 : 9 + 32], length_plaintext)
+                    length_encrypted, length_uncompressed = unpack("<II", header[1:9])
+                    yield Blob("Tree", self.pack_id, offset, length_encrypted, header[9 : 9 + 32], length_uncompressed)
                     header = header[9 + 32 :]
                 case _:
                     raise ValueError(f"Invalid Tag: {header[0]}")
             offset += length_encrypted
 
-    def get_blob_index(self):
-        "Return blobs in index format"
-        return ({"id": blob.hash.hex(), "offset": blob.offset, "length": blob.length} for blob in self.get_blobs())
+    def get_blob_index(self) -> list[Blob]:
+        "Return list of blobs"
+        return self.get_blobs()
+
+
+def blob_to_dict(blob: Blob) -> dict:
+    d = {"id": blob.hash.hex(), "offset": blob.offset, "length": blob.length}
+    if blob.uncompressed_length:
+        return d | {"length_uncompressed": blob.uncompressed_length}
+    return d

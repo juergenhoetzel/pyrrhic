@@ -11,6 +11,7 @@ import msgspec
 
 from pyrrhic.crypto.keys import decrypt_mac
 from pyrrhic.repo.repository import Repository
+from pyrrhic.util import decompress
 
 
 class Node(msgspec.Struct):
@@ -67,6 +68,8 @@ def get_node_blob(repo: Repository, rcache: ReaderCache, blob_id: str) -> bytes:
     f.seek(blob.offset)
     buffer = f.read(blob.length)
     plaintext = decrypt_mac(repo.masterkey, buffer)
+    if uncompressed_length := blob.uncompressed_length:
+        plaintext = decompress(plaintext, uncompressed_length)
     if hashlib.sha256(plaintext).hexdigest() != blob.id:
         raise ValueError(f"Invalid hash for blob {blob.id}")
     return plaintext
