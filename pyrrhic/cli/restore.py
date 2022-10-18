@@ -40,23 +40,18 @@ def _restore(tree_id: str, target: Path, resume=False):
                         current_pos = 0
                         for i, blob in enumerate(track(blobs, pnode.path)):
                             debug(f"Blob {i} of {abs_path}")
-                            if resume_from == current_pos:  # sanity check
-                                bs = get_node_blob(state.repository, rcache, blob.id)
-                                current_pos += len(bs)
-                                resume_from = current_pos
-                                f.write(bs)
-                                debug(f"Wrote till {current_pos}")
-                            elif current_pos < resume_from < (current_pos + blob.length - 32):
-                                f.truncate(current_pos)
-                                debug(f"Resuming from {current_pos}")
-                                bs = get_node_blob(state.repository, rcache, blob.id)
-                                f.write(bs)
-                                current_pos += len(bs)
-                                resume_from = current_pos
-                                debug(f"Wrote till {current_pos}")
-                            else:
-                                debug(f"{abs_path} Ignoring pos {current_pos}")
-                                current_pos += blob.length - 32  # FIXME: Compressed blocks also have uncompressed length
+                            if current_pos < resume_from:
+                                if resume_from < (current_pos + blob.length - 32):  # FIXME: Compressed blocks also have uncompressed length
+                                    f.truncate(current_pos)
+                                    debug(f"Resuming from {current_pos}")
+                                else:
+                                    debug(f"{abs_path} Ignoring pos {current_pos} in resumed file")
+                                    current_pos += blob.length - 32  # FIXME: Compressed blocks also have uncompressed length
+                                    continue
+                            bs = get_node_blob(state.repository, rcache, blob.id)
+                            current_pos += len(bs)
+                            f.write(bs)
+
                     abs_path.chmod(mode)
                     if isroot:  # FIXME: chgrp to groups this user is member of
                         os.chown(abs_path, node.uid, node.gid)
