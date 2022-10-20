@@ -11,7 +11,7 @@
 pipx install pyrrhic-restic
 ```
 
-## Pre-Alpha Relase
+## Alpha Relase
 
 All commands are compatible with `restic` implementation:
 ```bash
