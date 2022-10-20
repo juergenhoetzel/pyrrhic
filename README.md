@@ -43,6 +43,8 @@ pyrrhic -r restic_test_repositories/restic_test_repository -p <(echo password) l
 
 - pretty-print all objects
 - `pyrrhic cat pack SNAPSHOT_ID --header` prints parsed header
+- Resumable restore
+- Progress bar
 
 ## Why is it called pyrrhic
 
