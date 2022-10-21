@@ -1,11 +1,6 @@
-import os
 from functools import wraps
 
 import typer
-
-
-def get_file_by_prefix(dir: str, prefix: str) -> list[str]:
-    return [file for file in os.listdir(dir) if file == str or file.startswith(prefix)]
 
 
 def catch_exception(which_exception, exit_code=1):
