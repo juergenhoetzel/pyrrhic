@@ -68,3 +68,5 @@ def test_ls(capfd, repository):
     for s in lines:
         path = Path(s)
         assert path.is_absolute()
+    with pytest.raises(ValueError, match="Index: invalid not found"):
+        ls("invalid", False)
