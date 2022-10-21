@@ -19,7 +19,7 @@ app: typer.Typer = typer.Typer(add_completion=False)
 
 
 @app.command()
-@catch_exception(ValueError, exit_code=1)
+@catch_exception(ValueError)
 @catch_exception(FileNotFoundError, exit_code=2)
 def masterkey():
     """Return masterkey JSON to stdout"""
@@ -28,7 +28,7 @@ def masterkey():
 
 
 @app.command()
-@catch_exception(ValueError, exit_code=1)
+@catch_exception(ValueError)
 @catch_exception(FileNotFoundError, exit_code=2)
 def config():
     """Return config JSON to stdout"""
@@ -38,7 +38,7 @@ def config():
 
 
 @app.command()
-@catch_exception(ValueError, exit_code=1)
+@catch_exception(ValueError)
 @catch_exception(FileNotFoundError, exit_code=2)
 def index(index_id: str):
     """Return index JSON to stdout"""
@@ -48,7 +48,7 @@ def index(index_id: str):
 
 
 @app.command()
-@catch_exception(ValueError, exit_code=1)
+@catch_exception(ValueError)
 @catch_exception(FileNotFoundError, exit_code=2)
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
@@ -65,7 +65,7 @@ def snapshot(snapshot_id: str):
 
 
 @app.command()
-@catch_exception(ValueError, exit_code=1)
+@catch_exception(ValueError)
 @catch_exception(FileNotFoundError, exit_code=2)
 def pack(pack_id: str, header: bool = typer.Option(False, "--header", help="Output parsed pack header")):
     """Return pack to stdout"""

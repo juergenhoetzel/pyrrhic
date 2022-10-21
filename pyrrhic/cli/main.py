@@ -16,6 +16,7 @@ from rich.logging import RichHandler
 
 import typer
 
+
 app: typer.Typer = typer.Typer(add_completion=False)
 app.add_typer(cat.app, name="cat", help="🐈 Print internal objects to stdout")
 app.command()(snapshots.snapshots)
@@ -41,7 +42,7 @@ def version():
 
 @app.callback()
 @catch_exception(OSError, exit_code=2)
-@catch_exception(ValueError, exit_code=1)
+@catch_exception(ValueError)
 def global_options(
     loglevel: LogLevel = typer.Option(LogLevel.error, case_sensitive=False),
     repo: Path = typer.Option(None, "--repo", "-r", help="repository for subcommands ", envvar="RESTIC_REPOSITORY"),
