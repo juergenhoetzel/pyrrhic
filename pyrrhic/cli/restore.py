@@ -1,7 +1,7 @@
 import operator
 import os
 import stat
-from logging import debug, warn
+from logging import debug, info, warn
 from pathlib import Path
 
 import pyrrhic.cli.state as state
@@ -39,12 +39,12 @@ def _restore(tree_id: str, target: Path, resume=False):
                     with open(abs_path, "ab") as f:
                         current_pos = 0
                         for i, blob in enumerate(track(blobs, pnode.path)):
-                            debug(f"Blob {i} of {abs_path}")
+                            debug(f"Processing Blob {i} of {abs_path}")
                             blength = blob.uncompressed_length or (blob.length - 32)
                             if current_pos < resume_from:
                                 if resume_from < (current_pos + blength):
                                     f.truncate(current_pos)
-                                    debug(f"Resuming from {current_pos}")
+                                    info(f"Resuming from {current_pos}")
                                 else:
                                     debug(f"{abs_path} Ignoring pos {current_pos} in resumed file")
                                     current_pos += blength
