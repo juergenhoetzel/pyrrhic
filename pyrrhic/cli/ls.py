@@ -22,12 +22,15 @@ _MODE_STAT = {
 }
 
 
-def _print_long(node: Node, path: str, table: Table) -> None:
-    mtime_str = f"{datetime_from_restic(node.mtime):%Y-%m-%d %H:%M:%S}"  # rich compatible datetime str
+def _format_name(node: Node) -> str:
     if node.type == "symlink":
-        name = f"{node.name} -> {node.linktarget}"
-    else:
-        name = node.name
+        return f"{node.name} -> {node.linktarget}"
+    return node.name
+
+
+def _print_long(node: Node, path: str, table: Table) -> None:
+    name = _format_name(node)
+    mtime_str = f"{datetime_from_restic(node.mtime):%Y-%m-%d %H:%M:%S}"  # rich compatible datetime str
     mode = stat.filemode(stat.S_IMODE(node.mode) | _MODE_STAT.get(node.type, 0))
     table.add_row(f"{mode}", f"{node.uid}", f"{node.gid}", f"{node.size}", f"{mtime_str}", f"{path}/{name}")
 
@@ -51,4 +54,5 @@ def ls(snapshot_prefix: str, long: bool = typer.Option(False, "--long", "-l", he
         print(table)
     else:
         for pleaf in walk_breadth_first(state.repository, snapshot.tree):
-            print(f"{pleaf.path}/{pleaf.node.name}")
+            name = _format_name(pleaf.node)
+            print(f"{pleaf.path}/{name}")
