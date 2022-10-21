@@ -10,6 +10,9 @@
 ```bash
 pipx install pyrrhic-restic
 ```
+## Screenshot
+
+<img src="https://github.com/juergenhoetzel/pyrrhic/blob/master/screenshots/screenshot.png">
 
 ## Alpha Relase
 
