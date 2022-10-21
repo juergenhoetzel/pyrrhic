@@ -70,3 +70,5 @@ def test_ls(capfd, repository):
         assert path.is_absolute()
     with pytest.raises(ValueError, match="Index: invalid not found"):
         ls("invalid", False)
+    with pytest.raises(ValueError, match="Prefix  matches multiple snapshots"):
+        ls("", False)
