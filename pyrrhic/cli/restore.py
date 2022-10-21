@@ -64,6 +64,18 @@ def _restore(tree_id: str, target: Path, resume=False):
                 except FileExistsError as e:
                     if not resume:
                         raise e
+            case "symlink":
+                if abs_path.is_symlink():
+                    if not resume:
+                        raise FileExistsError(f"Symlink exists: {abs_path}")
+                    debug(f"Symlink exists: {abs_path}")
+                elif node.linktarget:
+                    debug(f"Creating symlink {abs_path} -> {node.linktarget}")
+                    os.symlink(node.linktarget, abs_path)
+                    if isroot:  # FIXME: chgrp to groups this user is member of
+                        os.chown(abs_path, node.uid, node.gid, follow_symlinks=False)
+                else:
+                    raise ValueError(f"Symlink target of {abs_path} does not exist")
             case _:
                 warn(f"{node.name}: {node.type} not implemented")
 

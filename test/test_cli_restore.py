@@ -39,3 +39,7 @@ def test_restore(capfd, tmp_path, caplog, repository, snapshot_cracklib):
 
     for snapshot_path, sha1sum in RESTORE_FILES:
         assert hashlib.sha1((tmp_path / snapshot_path).read_bytes()).hexdigest() == sha1sum
+
+    symlink_path = Path(tmp_path / "usr/share/cracklib/cracklib-dummy")
+    assert symlink_path.is_symlink()
+    assert symlink_path.resolve().name == "cracklib-small"
