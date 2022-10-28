@@ -3,7 +3,6 @@ import stat
 
 import pyrrhic.cli.state as state
 from pyrrhic.repo.tree import Node, walk_breadth_first
-from pyrrhic.util import datetime_from_restic
 
 from rich import print
 from rich.table import Table
@@ -30,7 +29,7 @@ def _format_name(node: Node) -> str:
 
 def _print_long(node: Node, path: str, table: Table) -> None:
     name = _format_name(node)
-    mtime_str = f"{datetime_from_restic(node.mtime):%Y-%m-%d %H:%M:%S}"  # rich compatible datetime str
+    mtime_str = f"{node.mtime:%Y-%m-%d %H:%M:%S}"  # rich compatible datetime str
     mode = stat.filemode(stat.S_IMODE(node.mode) | _MODE_STAT.get(node.type, 0))
     table.add_row(f"{mode}", f"{node.uid}", f"{node.gid}", f"{node.size}", f"{mtime_str}", f"{path}/{name}")
 

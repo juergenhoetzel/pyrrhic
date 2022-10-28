@@ -14,7 +14,7 @@ dependencies = [
 	     "cryptography >= 37.0.4",
 	     "typer[all] >= 0.3.2",
 	     "zstandard",
-	     "msgspec >= 0.9"
+	     "msgspec >= 0.9.1"
 ]
 
 [project.scripts]

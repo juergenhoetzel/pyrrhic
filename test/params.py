@@ -11,7 +11,7 @@ params = [
         "masterkey": {"mac": {"r": "hQYBDSD/JwpU8XMDIJmAAg==", "k": "aSbwRFL8rIOOxL4W+mAW1w=="}, "encrypt": "Te0IPiu0wvEtr2+J59McgTrjCp/ynVxC/mmM9mX/t+E="},
         "snapshot_id": "dd62b535d10bd8f24440cc300a868d6bf2f472859f1218883b0a6faca364c10c",
         "snapshot_json": {
-            "time": "2022-07-19T21:52:28.692251+02:00",
+            "time": "2022-07-19T19:52:28.692252Z",
             "tree": "a5dbcc77f63f5dd4f4c67c988aba4a19817aaa9d6c34a6021236a5d40ce653e1",
             "paths": ["/home/juergen/shared/python/pyrrhic/test"],
             "hostname": "shaun",
@@ -41,7 +41,7 @@ params = [
         "masterkey": {"mac": {"r": "2iQMCQDOPw1UtW0N1C4RAA==", "k": "zpL4Veh3FhT7grSgm0BmCQ=="}, "encrypt": "193cMViwx7TJFtykWOZzEKojzp0fjx4VvaiJ6yMgZ3E="},
         "snapshot_id": "4d9c1f",
         "snapshot_json": {
-            "time": "2022-10-18T06:53:22.965182+02:00",
+            "time": "2022-10-18T04:53:22.965183Z",
             "tree": "9178aa841c9fd277478925c7864da28e4500ce236ad89a0ff9a261b1dabbda42",
             "paths": ["/usr/share/cracklib"],
             "hostname": "shaun",

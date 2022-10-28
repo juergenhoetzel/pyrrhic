@@ -5,6 +5,7 @@ This module contains the crypto primitives used by restic.
 import json
 from base64 import b64decode, b64encode
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from cryptography.hazmat.backends import default_backend
@@ -13,8 +14,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 
 import msgspec
-
-from pyrrhic.util import resticdatetime, resticdatetime_dec_hook
 
 # mask for key, (cf. http://cr.yp.to/mac/poly1305-20050329.pdf)
 _POLY1305KEYMASK = b"\xff\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f\xfc\xff\xff\x0f"
@@ -31,7 +30,7 @@ class WrappedKey(msgspec.Struct):
     N: int
     r: int
     p: int
-    created: resticdatetime
+    created: datetime
     data: bytes
     salt: bytes
 
@@ -67,7 +66,7 @@ class MasterKey:
 
 
 def load_key(key_path: Path) -> WrappedKey:
-    return msgspec.json.decode(key_path.read_bytes(), type=WrappedKey, dec_hook=resticdatetime_dec_hook)
+    return msgspec.json.decode(key_path.read_bytes(), type=WrappedKey)
 
 
 def _poly1305_validate(nonce: bytes, k: bytes, r: bytes, message: bytes, mac: bytes) -> bool:

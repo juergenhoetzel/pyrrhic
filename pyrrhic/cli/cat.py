@@ -8,7 +8,6 @@ import msgspec
 import pyrrhic.cli.state
 from pyrrhic.cli.util import catch_exception
 from pyrrhic.repo.pack import blob_to_dict
-from pyrrhic.util import resticdatetime_enc_hook
 
 from rich import print, print_json
 
@@ -53,13 +52,12 @@ def index(index_id: str):
 def snapshot(snapshot_id: str):
     """Return snapshot JSON to stdout"""
     state = pyrrhic.cli.state
-    enc = msgspec.json.Encoder(enc_hook=resticdatetime_enc_hook)
     if snapshot_id == "latest":
         snapshots = iter(sorted(pyrrhic.cli.state.repository.get_snapshot(), key=operator.attrgetter("time"), reverse=True)[:1])
     else:
         snapshots = state.repository.get_snapshot(snapshot_id)
     if (snapshot := next(snapshots, None)) and next(snapshots, None) is None:
-        print_json(enc.encode(snapshot).decode("utf-8"))
+        print_json(msgspec.json.encode(snapshot).decode("utf-8"))
     else:
         raise ValueError(f"Invalid Index: {snapshot_id}")
 

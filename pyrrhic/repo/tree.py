@@ -3,6 +3,7 @@ import io
 from collections import OrderedDict
 from copy import copy
 from dataclasses import dataclass
+from datetime import datetime
 from logging import info
 from pathlib import Path
 from typing import Iterator, Optional
@@ -18,9 +19,9 @@ class Node(msgspec.Struct):
     name: str
     type: str
     mode: int
-    mtime: str
-    atime: str
-    ctime: str
+    mtime: datetime
+    atime: datetime
+    ctime: datetime
     uid: int
     gid: int
     size: int = 0
